@@ -1,5 +1,5 @@
 # Anya
-A bunch of shit I need in a bot
+A bunch of stuff I need in a bot
 
 ## .env
 ```env
