@@ -16,12 +16,11 @@ class AnyaPermissions(Flag):
     NONE = 0
     ADMIN = 1
 
-    EVAL = 2
-    RELOAD = 4
+    VIEW_SOURCE = 2
 
     @classmethod
     def has_permission(cls, user, permission):
-        return user.permissions & permission == permission
+        return user.permissions & permission or user.permissions & cls.ADMIN
 
 
 @dataclass(slots=True)

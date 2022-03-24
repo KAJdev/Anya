@@ -71,11 +71,11 @@ class Database:
 
             user_dict = asdict(user)
             del user_dict["_id"]
-            user._id = (await self._insert("farms", user_dict)).inserted_id
+            user._id = (await self._insert("users", user_dict)).inserted_id
 
             return user
 
-        return from_dict(data_class=models.Farm, data=user)
+        return from_dict(data_class=models.User, data=user)
 
     async def update_user(self, id: int, data: Update | dict) -> None:
         print(data.update)

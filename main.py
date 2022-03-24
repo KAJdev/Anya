@@ -49,15 +49,7 @@ class Bot(Snake):
                 type=ActivityType.LISTENING
             ),
             status=Status.ONLINE
-        )      
-
-    async def get_context(self, data, interaction: bool = False):
-        data = await super().get_context(data, interaction=interaction)
-
-        with suppress(AttributeError):
-            data.farm = await self.db.fetch_farm(data.author.id)
-
-        return data
+        )
 
     async def on_command_error(self, ctx: InteractionContext, error: Exception):
         match error:

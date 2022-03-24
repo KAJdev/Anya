@@ -1,8 +1,4 @@
-from asyncore import dispatcher_with_send
-from dacite import from_dict
-from dis_snek import slash_command, Button, ButtonStyles, listen, Embed, Scale, Modal, ShortText, ParagraphText, InteractionContext, OptionTypes, slash_attachment_option, ModalContext, auto_defer, slash_option
-import os
-import models
+from dis_snek import listen, Scale
 import re
 
 from dis_snek.api.events import MessageCreate
@@ -48,7 +44,7 @@ class Messages(Scale):
                     break
             else:
                 # if there is none, create one
-                anyas_webhook = await message.channel.create_webhook(name='Anya Message References', avatar=self.bot.user.avatar.url)
+                anyas_webhook = await message.channel.create_webhook(name='Anya Message References')
 
             # send the message to the webhook
             await anyas_webhook.send(
