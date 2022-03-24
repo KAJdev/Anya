@@ -1,2 +1,47 @@
-# Suke
- 
+# Anya
+A bunch of shit I need in a bot
+
+## .env
+```env
+TOKEN=""
+MONGO=""
+DB_NAME=""
+```
+
+## Running
+install python 3.10 + pip + venv
+
+### Linux
+```bash
+python3.10 -m venv venv
+```
+
+```bash
+source venv/bin/activate
+```
+
+```bash
+pip install -r requirements.txt
+```
+
+```bash
+python3.10 main.py
+```
+
+
+### Windows
+```batch
+python3.10 -m venv venv
+```
+
+```batch
+.\venv\Scripts\activate
+```
+
+```batch
+pip install -r requirements.txt
+```
+
+```bash
+python3.10 main.py
+```

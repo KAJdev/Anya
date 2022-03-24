@@ -1,0 +1,8 @@
+git+https://github.com/Discord-Snake-Pit/Dis-Snek
+aiohttp
+motor
+pymongo[srv]
+humanize
+python-dotenv
+orjson
+dacite
