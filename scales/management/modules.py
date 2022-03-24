@@ -52,7 +52,7 @@ class Modules(Scale):
         """
         choices = [
             {"name": _module.replace('_', '').title(), "value": _module}
-            for _module in Modules.__members__
+            for _module in ModuleToggles.get_modules()
             if module.lower().replace(' ', '_') in _module.lower()
         ]
 

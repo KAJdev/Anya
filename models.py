@@ -22,16 +22,23 @@ class AnyaPermissions(Flag):
     def has_permission(cls, permissions: 'AnyaPermissions', permission: 'AnyaPermissions') -> bool:
         return bool(permissions & permission) or bool(permissions & cls.ADMIN)
 
+    @classmethod
+    def get_permissions(cls) -> list[str]:
+        return (member for member in cls.__members__ if member != 'NONE')
+
 class ModuleToggles(Flag):
     NONE = auto()
-    ALL = auto()
-    
+
     MESSAGE_REFERENCES = auto()
     OCR_REPLY = auto()
 
     @classmethod
     def has_module(cls, modules: 'ModuleToggles', module: 'ModuleToggles') -> bool:
         return bool(modules & module) or bool(modules & cls.ALL)
+
+    @classmethod
+    def get_modules(cls) -> list[str]:
+        return (module for module in cls.__members__ if module != 'NONE')
 
 
 @dataclass(slots=True)
