@@ -10,17 +10,28 @@ from dataclasses import dataclass, field
 from utils import emoji, color, progress, time
 import constants
 import uuid
-from enum import Enum, Flag
+from enum import Enum, Flag, auto
 
 class AnyaPermissions(Flag):
-    NONE = 0
-    ADMIN = 1
+    NONE = auto()
+    ADMIN = auto()
 
-    VIEW_SOURCE = 2
+    VIEW_SOURCE = auto()
 
     @classmethod
-    def has_permission(cls, user, permission):
-        return user.permissions & permission or user.permissions & cls.ADMIN
+    def has_permission(cls, permissions: 'AnyaPermissions', permission: 'AnyaPermissions') -> bool:
+        return bool(permissions & permission) or bool(permissions & cls.ADMIN)
+
+class ModuleToggles(Flag):
+    NONE = auto()
+    ALL = auto()
+    
+    MESSAGE_REFERENCES = auto()
+    OCR_REPLY = auto()
+
+    @classmethod
+    def has_module(cls, modules: 'ModuleToggles', module: 'ModuleToggles') -> bool:
+        return bool(modules & module) or bool(modules & cls.ALL)
 
 
 @dataclass(slots=True)
@@ -28,6 +39,19 @@ class User:
     _id: ObjectId
     id: int
     permissions: AnyaPermissions = AnyaPermissions.NONE
+
+    def has_permision(self, permission: AnyaPermissions) -> bool:
+        return AnyaPermissions.has_permission(self, permission)
+
+
+@dataclass(slots=True)
+class Guild:
+    _id: ObjectId
+    id: int
+    modules: ModuleToggles = ModuleToggles.ALL
+
+    def module_enabled(self, module: ModuleToggles) -> bool:
+        return ModuleToggles.has_module(self.modules, module)
 
 
 class AdminScale(Scale):

@@ -81,6 +81,24 @@ class Database:
         print(data.update)
         await self._update("users", {"id": id}, data.update if isinstance(data, Update) else data, upsert=False, many=False)
 
+    async def fetch_guild(self, id: int) -> models.Guild:
+        guild = await self._fetch("guilds", {"id": id}, limit=1)
+
+        if guild is None:
+            guild = models.Guild(_id=None,id=id)
+
+            guild_dict = asdict(guild)
+            del guild_dict["_id"]
+            guild._id = (await self._insert("guilds", guild_dict)).inserted_id
+
+            return guild
+
+        return from_dict(data_class=models.Guild, data=guild)
+
+    async def update_guild(self, id: int, data: Update | dict) -> None:
+        print(data.update)
+        await self._update("guilds", {"id": id}, data.update if isinstance(data, Update) else data, upsert=False, many=False)
+
     
 
     
