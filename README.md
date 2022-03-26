@@ -11,6 +11,8 @@ DB_NAME=""
 ## Running
 install python 3.10 + pip + venv
 
+install tesseract if you want OCR commands.
+
 ### Linux
 ```bash
 python3.10 -m venv venv
