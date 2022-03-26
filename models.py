@@ -31,14 +31,23 @@ class ModuleToggles(Flag):
 
     MESSAGE_REFERENCES = auto()
     OCR_REPLY = auto()
+    FXTWITTER = auto()
 
     @classmethod
     def has_module(cls, modules: 'ModuleToggles', module: 'ModuleToggles') -> bool:
-        return bool(modules & module) or bool(modules & cls.ALL)
+        return bool(modules & module)
 
     @classmethod
     def get_modules(cls) -> list[str]:
         return (module for module in cls.__members__ if module != 'NONE')
+
+    @classmethod
+    def all(cls) -> 'ModuleToggles':
+        return cls.MESSAGE_REFERENCES | cls.OCR_REPLY | cls.FXTWITTER
+
+    @classmethod
+    def default(cls) -> 'ModuleToggles':
+        return cls.MESSAGE_REFERENCES | cls.OCR_REPLY | cls.FXTWITTER
 
 
 @dataclass(slots=True)
@@ -55,10 +64,18 @@ class User:
 class Guild:
     _id: ObjectId
     id: int
-    modules: ModuleToggles = ModuleToggles.ALL
+    modules: int = ModuleToggles.default().value
+    auto_thread_channels: list[int] = field(default_factory=list)
+    auto_publish_channels: list[int] = field(default_factory=list)
 
     def module_enabled(self, module: ModuleToggles) -> bool:
-        return ModuleToggles.has_module(self.modules, module)
+        return ModuleToggles.has_module(ModuleToggles(self.modules), module)
+
+    def add_module(self, module: ModuleToggles) -> None:
+        self.modules |= module.value
+
+    def remove_module(self, module: ModuleToggles) -> None:
+        self.modules &= ~module.value
 
 
 class AdminScale(Scale):

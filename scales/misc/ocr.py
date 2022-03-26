@@ -1,10 +1,19 @@
+from cgitb import text
 import io
-from dis_snek import slash_command, Message, InteractionCommand, Scale, InteractionContext, OptionTypes, slash_option, Attachment, SlashCommandChoice, File
-import aiohttp, PIL, pytesseract
+from dis_snek import slash_command, Message, listen, Scale, InteractionContext, OptionTypes, slash_option, Attachment, SlashCommandChoice, File, message_command
+import aiohttp, PIL, pytesseract, models
 
 from dis_snek.api.events import MessageCreate
 
 class OCR(Scale):
+
+    async def do_ocr(self, image: Attachment, lang: str = 'eng') -> dict:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(image.url) as resp:
+                data = await resp.read()
+
+        image = PIL.Image.open(io.BytesIO(data))
+        return pytesseract.image_to_string(image, lang=lang)
     
     @slash_command(name="ocr", description="Get text from an image")
     @slash_option(
@@ -30,25 +39,60 @@ class OCR(Scale):
             await ctx.send("This is not an image", ephemeral=True)
             return
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(image.url) as resp:
-                data = await resp.read()
+        text = await self.do_ocr(image, lang)
 
-        image = PIL.Image.open(io.BytesIO(data))
-        text = pytesseract.image_to_string(image, lang=lang)
+        if len(text) > 2000:
+            await ctx.send(file=File(io.BytesIO(text.encode('utf-8')), "text.txt"))
+        else:
+            await ctx.send(f"```\n{text.replace('```', '')}\n```")
 
-        await ctx.send(file=File(io.BytesIO(text.encode('utf-8')), "text.txt"))
+
+    async def message_ocr(self, message: Message):
+        texts = []
+
+        for attachment in message.attachments:
+            if attachment.content_type.startswith("image/"):
+                texts.append((attachment.filename, await self.do_ocr(attachment, 'eng')))
+
+        return texts
+
+
+    @message_command(name="OCR")
+    async def ocr_message(self, ctx: InteractionContext, message: Message):
+        texts = await self.message_ocr(message)
+
+        if texts:
+            if sum(len(text[1]) for text in texts) > 2000:
+                await ctx.send(files=[File(io.BytesIO(t[1].encode('utf-8')), t[0]) for t in texts])
+            else:
+                await ctx.send("".join(f"```\n{text[1].replace('```', '')}\n```" for text in texts))
+
+        else:
+            await ctx.send("No text found", ephemeral=True)
 
 
     @listen()
     async def on_message_create(self, event: MessageCreate):
         message: Message = event.message
 
-        if message.author.bot:
-            return
+        if not message.author.bot and message.content and "ocr" in message.content and message.message_reference:
 
-        if "ocr" in message.content:
-            pass
+            guild: models.Guild = await self.bot.db.fetch_guild(message.guild.id)
+
+            if not guild.module_enabled(models.ModuleToggles.OCR_REPLY):
+                return
+
+            referenced = await message.fetch_referenced_message()
+            texts = await self.message_ocr(referenced)
+
+            if texts:
+                if sum(len(text[1]) for text in texts) > 2000:
+                    await message.reply(files=[File(io.BytesIO(t[1].encode('utf-8')), t[0]) for t in texts])
+                else:
+                    await message.reply("".join(f"```\n{text[1].replace('```', '')}\n```" for text in texts))
+
+            
+                
 
     
 def setup(bot):

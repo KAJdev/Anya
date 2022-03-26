@@ -3,9 +3,10 @@ from dis_snek import listen, Scale, Webhook, File
 import re, models, aiohttp, io
 
 from dis_snek.api.events import MessageCreate
+from dis_snek.client.errors import NotFound
 
 message_link_regex = re.compile(r'https?:\/\/(?:.*\.)?(?:discord(?:app)?\.com|discord\.gg)\/channels\/(\d+)\/(\d+)\/(\d+)')
-message_id_regex = re.compile(r'\d+')
+message_id_regex = re.compile(r'(\d+){10,}')
 
 class Messages(Scale):
     
@@ -30,12 +31,15 @@ class Messages(Scale):
 
         # fetch the message if there is one
         if message_id and guild and channel:
-            # guild_stuff: models.Guild = await self.bot.db.fetch_guild(guild)
+            guild_stuff: models.Guild = await self.bot.db.fetch_guild(int(guild))
 
-            # if not guild_stuff.module_enabled(models.ModuleToggles.MESSAGE_REFERENCES):
-            #     return
+            if not guild_stuff.module_enabled(models.ModuleToggles.MESSAGE_REFERENCES):
+                return
 
-            referenced_message = await (await self.bot.fetch_channel(channel)).fetch_message(message_id)
+            try:
+                referenced_message = await (await self.bot.fetch_channel(channel)).fetch_message(message_id)
+            except NotFound:
+                return
 
             # get the webhooks for the channel
             webhooks = await message.channel.fetch_webhooks()
