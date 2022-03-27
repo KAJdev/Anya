@@ -144,7 +144,7 @@ class Purge(Scale):
             user_dict[str(message.author)] = user_dict.get(str(message.author), 0) + 1
 
         count = len(to_delete)
-        while len(to_delete):
+        while to_delete:
             iteration = [to_delete.pop() for i in range(min(100, len(to_delete)))]
             await channel.delete_messages(iteration, reason=f"Purge by {ctx.author}")
         

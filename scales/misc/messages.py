@@ -1,5 +1,5 @@
 import aiohttp
-from dis_snek import listen, Scale, Webhook, File
+from dis_snek import listen, Scale, Webhook, File, Message, GuildText
 import re, models, aiohttp, io
 
 from dis_snek.api.events import MessageCreate
@@ -7,6 +7,33 @@ from dis_snek.client.errors import NotFound
 
 message_link_regex = re.compile(r'https?:\/\/(?:.*\.)?(?:discord(?:app)?\.com|discord\.gg)\/channels\/(\d+)\/(\d+)\/(\d+)')
 message_id_regex = re.compile(r'(\d+){10,}')
+
+def get_context(message: Message):
+    guild = channel = message_id = None
+
+    # extract the message id from the message link
+    message_link = re.search(message_link_regex, message.content or "")
+    if message_link:
+        guild, channel, message_id = message_link.groups()
+    
+    elif message_id := re.search(message_id_regex, message.content or ""):
+        guild = str(message.guild.id)
+        channel = str(message.channel.id)
+        message_id = message_id.group()
+
+    return guild, channel, message_id
+
+async def get_anya_hook(channel: GuildText) -> Webhook:
+    # get the webhooks for the channel
+    webhooks = await channel.fetch_webhooks()
+
+    # look for one named "Anya Message References"
+    for webhook in webhooks:
+        if webhook.name == 'Anya Message References':
+            return webhook
+    else:
+        # if there is none, create one
+        return await channel.create_webhook(name='Anya Message References')
 
 class Messages(Scale):
     
@@ -17,20 +44,10 @@ class Messages(Scale):
         if message.author.bot:
             return
 
-        guild = channel = message_id = None
-
-        # extract the message id from the message link
-        message_link = re.search(message_link_regex, message.content or "")
-        if message_link:
-            guild, channel, message_id = message_link.groups()
-        
-        elif message_id := re.search(message_id_regex, message.content or ""):
-            guild = str(message.guild.id)
-            channel = str(message.channel.id)
-            message_id = message_id.group()
+        guild, channel, message_id = get_context(message)
 
         # fetch the message if there is one
-        if message_id and guild and channel:
+        if guild and channel and message_id:
             guild_stuff: models.Guild = await self.bot.db.fetch_guild(int(guild))
 
             if not guild_stuff.module_enabled(models.ModuleToggles.MESSAGE_REFERENCES):
@@ -41,19 +58,7 @@ class Messages(Scale):
             except NotFound:
                 return
 
-            # get the webhooks for the channel
-            webhooks = await message.channel.fetch_webhooks()
-
-            anyas_webhook: Webhook = None
-
-            # look for one named "Anya Message References"
-            for webhook in webhooks:
-                if webhook.name == 'Anya Message References':
-                    anyas_webhook = webhook
-                    break
-            else:
-                # if there is none, create one
-                anyas_webhook = await message.channel.create_webhook(name='Anya Message References')
+            anyas_webhook: Webhook = await get_anya_hook(message.channel)
 
             # make own attachments
             attachments = []
