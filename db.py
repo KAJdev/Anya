@@ -101,20 +101,17 @@ class Database:
     async def _fetch(self, collection: str, query: dict, limit: int = 1) -> Any:
         if limit == 1:
             return await self.db[collection].find_one(query)
-        else:
-            return await self.db[collection].find(query).to_list(length=limit)
+        return await self.db[collection].find(query).to_list(length=limit)
 
     async def _insert(self, collection: str, data: dict | list) -> Any:
         if isinstance(data, dict):
             return await self.db[collection].insert_one(data)
-        else:
-            return await self.db[collection].insert_many(data)
+        return await self.db[collection].insert_many(data)
 
     async def _update(self, collection: str, query: dict, data: dict, upsert: bool = False, many: bool = False) -> Any:
         if many:
             return await self.db[collection].update_many(query, data, upsert=upsert)
-        else:
-            return await self.db[collection].update_one(query, data, upsert=upsert)
+        return await self.db[collection].update_one(query, data, upsert=upsert)
 
     async def _find_and_update(self, collection: str, query: dict, data: dict, after: bool = True) -> Any:
         return await self.db[collection].find_one_and_update(query, data, return_document=pymongo.ReturnDocument.AFTER if after else pymongo.ReturnDocument.BEFORE)
@@ -122,8 +119,7 @@ class Database:
     async def _delete(self, collection: str, query: dict, many: bool = False) -> Any:
         if many:
             return await self.db[collection].delete_many(query)
-        else:
-            return await self.db[collection].delete_one(query)
+        return await self.db[collection].delete_one(query)
 
     async def fetch_user(self, id: int) -> models.User:
         if user := self.cache.get("users", id):
@@ -186,7 +182,3 @@ class Database:
             self.cache.put("guilds", id, from_dict(data_class=models.Guild, data=guild))
 
         return guild
-
-    
-
-    

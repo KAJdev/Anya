@@ -2,6 +2,7 @@ from contextlib import suppress
 import dotenv
 import os
 import logging
+import random
 
 import dis_snek
 from dis_snek.client import Snake
@@ -45,7 +46,7 @@ class Bot(Snake):
 
         await self.change_presence(
             activity=Activity(
-                name="/help",
+                name=random.choice(["minds.", "thoughts.", "feelings.", "spies and assasins."]),
                 type=ActivityType.LISTENING
             ),
             status=Status.ONLINE

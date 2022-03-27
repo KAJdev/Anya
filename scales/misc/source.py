@@ -1,4 +1,5 @@
-from dis_snek import slash_command, InteractionCommand, Scale, InteractionContext, OptionTypes, slash_option
+import io
+from dis_snek import slash_command, InteractionCommand, Scale, InteractionContext, OptionTypes, slash_option, File
 import inspect, models
 
 class Source(Scale):
@@ -21,15 +22,17 @@ class Source(Scale):
         #     await ctx.send("You do not have permission to view source code", ephemeral=True)
         #     return
 
-        command: InteractionCommand = next(filter(lambda x: x.name == command, self.bot.application_commands), None)
+        command: InteractionCommand = next(filter(lambda x: x.name == command.split()[0] and (x.sub_cmd_name == command.split()[1] if len(command.split()) > 1 else True), self.bot.application_commands), None)
         if not command:
             await ctx.send("Command not found")
             return
 
-        _source = inspect.getsource(command.callback.func)
-        _source = _source.replace("```py\n", "").replace("```", "")
-        
-        await ctx.send(f"```py\n{_source}```")
+        _source = inspect.getsource(command.callback.func).replace("```py\n", "").replace("```", "")
+
+        if len(_source) + 10 > 2000:
+            await ctx.send(file=File(io.BytesIO(_source.encode()), file_name=f"{command.name}.py"))
+        else:
+            await ctx.send(f"```py\n{_source}```")
 
     @source.autocomplete('command')
     async def source_autocomplete(self, ctx: InteractionContext, command: str):
@@ -38,7 +41,10 @@ class Source(Scale):
         """
 
         choices = [
-            {"name": _command.name, "value": _command.name}
+            {
+                "name": _command.name + (f" {_command.sub_cmd_name}" if getattr(_command, "sub_cmd_name", None) else ""),
+                "value": _command.name + (f" {_command.sub_cmd_name}" if getattr(_command, "sub_cmd_name", None) else "")
+            }
             for _command in self.bot.application_commands
             if command.lower() in _command.name.lower()
         ]

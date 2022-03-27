@@ -6,7 +6,7 @@ from db import Update
 
 class Modules(Scale):
     
-    @slash_command(name="modules", sub_cmd_name="toggle", description="Toggle a module on or off")
+    @slash_command(name="modules", sub_cmd_name="toggle", sub_cmd_description="Toggle a module on or off")
     @slash_option(
         name="module",
         description="The module you wish to toggle",
@@ -63,7 +63,7 @@ class Modules(Scale):
         await ctx.send(choices=choices[:24])
 
 
-    @slash_command(name="modules", sub_cmd_name="view", description="View modules and their current state")
+    @slash_command(name="modules", sub_cmd_name="view", sub_cmd_description="View modules and their current state")
     async def modules_view(self, ctx: InteractionContext):
         """
         View modules and their current state

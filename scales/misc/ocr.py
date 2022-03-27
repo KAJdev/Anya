@@ -1,6 +1,6 @@
 from cgitb import text
 import io
-from dis_snek import slash_command, Message, listen, Scale, InteractionContext, OptionTypes, slash_option, Attachment, SlashCommandChoice, File, message_command
+from dis_snek import slash_command, Message, listen, Scale, InteractionContext, OptionTypes, slash_option, Attachment, SlashCommandChoice, File, message_command, context_menu, CommandTypes
 import aiohttp, PIL, pytesseract, models
 
 from dis_snek.api.events import MessageCreate
@@ -41,6 +41,10 @@ class OCR(Scale):
 
         text = await self.do_ocr(image, lang)
 
+        if len(text) == 0:
+            await ctx.send("No text found", ephemeral=True)
+            return
+
         if len(text) > 2000:
             await ctx.send(file=File(io.BytesIO(text.encode('utf-8')), "text.txt"))
         else:
@@ -57,7 +61,7 @@ class OCR(Scale):
         return texts
 
 
-    @message_command(name="OCR")
+    @context_menu(name="Get Text From Image", context_type=CommandTypes.MESSAGE)
     async def ocr_message(self, ctx: InteractionContext, message: Message):
         texts = await self.message_ocr(message)
 
