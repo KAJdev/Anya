@@ -62,11 +62,11 @@ class OCR(Scale):
 
 
     @context_menu(name="Get Text From Image", context_type=CommandTypes.MESSAGE)
-    async def ocr_message(self, ctx: InteractionContext, message: Message):
-        texts = await self.message_ocr(message)
+    async def ocr_message(self, ctx: InteractionContext):
+        texts = await self.message_ocr(list(ctx.resolved.messages.values())[0])
 
-        if texts:
-            if sum(len(text[1]) for text in texts) > 2000:
+        if all_text_length := sum(len(text[1]) for text in texts) > 0:
+            if all_text_length > 2000:
                 await ctx.send(files=[File(io.BytesIO(t[1].encode('utf-8')), t[0]) for t in texts])
             else:
                 await ctx.send("".join(f"```\n{text[1].replace('```', '')}\n```" for text in texts))
@@ -94,10 +94,6 @@ class OCR(Scale):
                     await message.reply(files=[File(io.BytesIO(t[1].encode('utf-8')), t[0]) for t in texts])
                 else:
                     await message.reply("".join(f"```\n{text[1].replace('```', '')}\n```" for text in texts))
-
-            
-                
-
     
 def setup(bot):
     OCR(bot)

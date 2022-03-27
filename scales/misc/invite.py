@@ -13,7 +13,7 @@ class Invite(Scale):
         """
         Add me to your server
         """
-        await ctx.send(f"https://discord.com/api/oauth2/authorize?client_id={self.bot.application_id}&permissions={8 if admin else 120796342336}&scope=bot%20applications.commands")
+        await ctx.send(f"https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions={8 if admin else 120796342336}&scope=bot%20applications.commands")
     
 def setup(bot):
     Invite(bot)

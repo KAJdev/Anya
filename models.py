@@ -17,6 +17,7 @@ class AnyaPermissions(Flag):
     ADMIN = auto()
 
     VIEW_SOURCE = auto()
+    ADD_RANDOMS = auto()
 
     @classmethod
     def has_permission(cls, permissions: 'AnyaPermissions', permission: 'AnyaPermissions') -> bool:
@@ -54,10 +55,16 @@ class ModuleToggles(Flag):
 class User:
     _id: ObjectId
     id: int
-    permissions: AnyaPermissions = AnyaPermissions.NONE
+    permissions: int = AnyaPermissions.NONE.value
 
     def has_permision(self, permission: AnyaPermissions) -> bool:
-        return AnyaPermissions.has_permission(self, permission)
+        return AnyaPermissions.has_permission(AnyaPermissions(self.permissions), permission)
+
+    def add_permision(self, permission: AnyaPermissions) -> None:
+        self.permissions |= permission.value
+
+    def remove_permision(self, permission: AnyaPermissions) -> None:
+        self.permissions &= ~permission.value
 
 
 @dataclass(slots=True)

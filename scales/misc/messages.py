@@ -1,5 +1,5 @@
 import aiohttp
-from dis_snek import listen, Scale, Webhook, File, Message, GuildText
+from dis_snek import listen, Scale, Webhook, File, Message, GuildText, AllowedMentions
 import re, models, aiohttp, io
 
 from dis_snek.api.events import MessageCreate
@@ -74,6 +74,7 @@ class Messages(Scale):
                 avatar_url=referenced_message.author.avatar.url,
                 embeds=referenced_message.embeds,
                 files=attachments,
+                allowed_mentions=AllowedMentions(parse=[], users=[], roles=[])
             )
 
     

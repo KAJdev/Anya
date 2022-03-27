@@ -16,11 +16,6 @@ class Source(Scale):
         """
         Get the source code from self.bot.application_commands
         """
-        # user: models.User = await self.bot.db.fetch_user(ctx.author.id)
-
-        # if not user.has_permission(models.AnyaPermissions.VIEW_SOURCE):
-        #     await ctx.send("You do not have permission to view source code", ephemeral=True)
-        #     return
 
         command: InteractionCommand = next(filter(lambda x: x.name == command.split()[0] and (x.sub_cmd_name == command.split()[1] if len(command.split()) > 1 else True), self.bot.application_commands), None)
         if not command:
