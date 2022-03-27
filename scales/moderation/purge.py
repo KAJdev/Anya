@@ -3,7 +3,7 @@ import time
 from dis_snek import slash_command, InteractionCommand, Scale, InteractionContext, OptionTypes, slash_option, GuildChannel, DISCORD_EPOCH
 import inspect
 
-user_id_regex = re.compile(r'(\d+){10,}')
+user_id_regex = re.compile(r"<@!?(\d+)>")
 
 class Purge(Scale):
     
@@ -105,8 +105,6 @@ class Purge(Scale):
         to_delete = []
         i = 0
 
-        users = [int(match) for match in user_id_regex.findall(users)] if users else []
-
         await ctx.defer(ephemeral=True)
 
         old_warning = False
@@ -129,7 +127,7 @@ class Purge(Scale):
                 break
 
             if (
-                (users and message.author.id not in users) or
+                (users and str(message.author.id) not in users) or
                 (contains and contains not in message.content) or
                 (regex and not re.search(regex, message.content)) or
                 (starts_with and not message.content.startswith(starts_with)) or
