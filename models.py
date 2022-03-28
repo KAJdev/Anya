@@ -56,6 +56,7 @@ class User:
     _id: ObjectId
     id: int
     permissions: int = AnyaPermissions.NONE.value
+    manga_page: int = 0
 
     def has_permision(self, permission: AnyaPermissions) -> bool:
         return AnyaPermissions.has_permission(AnyaPermissions(self.permissions), permission)

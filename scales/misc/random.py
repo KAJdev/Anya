@@ -57,6 +57,9 @@ class Random(Scale):
     async def on_message_create(self, event: MessageCreate):
         message: Message = event.message
 
+        if not message.content:
+            return
+
         match message.content.split():
             case ["?random", action, type, *urls]:
 
