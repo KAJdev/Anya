@@ -91,7 +91,7 @@ class OCR(Scale):
 
             if texts:
                 if sum(len(text[1]) for text in texts) > 2000:
-                    await message.reply(files=[File(io.BytesIO(t[1].encode('utf-8')), t[0]) for t in texts])
+                    await message.reply(files=[File(io.BytesIO(t[1].encode('utf-8')), '.'.join(t[0].split('.')[:-1] + ['txt'])) for t in texts])
                 else:
                     await message.reply("".join(f"```\n{text[1].replace('```', '')}\n```" for text in texts))
     
