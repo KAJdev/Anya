@@ -11,4 +11,5 @@ default = (
     'management.autothread',
     'management.autopublish',
     'moderation.purge',
+    'gacha.headquarters',
 )
