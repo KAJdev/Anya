@@ -20,7 +20,11 @@ class Update:
             if f"${aspect}" not in self.update:
                 self.update[f"${aspect}"] = {}
 
-            self.update[f"${aspect}"].update(kwargs)
+            if aspect == 'inc':
+                for key, value in kwargs.items():
+                    self.update[f"${aspect}"][key] = self.update[f"${aspect}"].get(key, 0) + value
+            else:
+                self.update[f"${aspect}"].update(kwargs)
             return self
 
         return wrapper
@@ -148,7 +152,8 @@ class Database:
         user = await self._find_and_update("users", {"id": id}, data.update if isinstance(data, Update) else data)
 
         if user is not None:
-            self.cache.put("users", id, from_dict(data_class=models.User, data=user))
+            user = from_dict(data_class=models.User, data=user)
+            self.cache.put("users", id, user)
 
         return user
 
@@ -179,6 +184,7 @@ class Database:
         guild = await self._find_and_update("guilds", {"id": id}, data.update if isinstance(data, Update) else data)
 
         if guild is not None:
-            self.cache.put("guilds", id, from_dict(data_class=models.Guild, data=guild))
+            guild = from_dict(data_class=models.Guild, data=guild)
+            self.cache.put("guilds", id, guild)
 
         return guild

@@ -130,6 +130,25 @@ class Mission:
     def ended(self) -> bool:
         return self.ends_at <= datetime.utcnow()
 
+    def complete(self, agent: 'Agent') -> bool:
+        # calculate if the mission completed or not based on agent stats
+        # if the agent's affinity is greater than the mission's satisfaction, the mission always completes
+        # if the agent's affinity is less than the mission's difficulty, the mission always fails
+        # otherwise the mission is completed with a random chance of success determined by the agent's affinity
+        # and the mission's difficulty and satisfaction (the agent's affinity is the primary factor)
+
+        if agent.stats.get(self.affinity, 0) >= self.satisfactory:
+            return True
+        
+        if agent.stats.get(self.affinity, 0) < self.difficulty:
+            return False
+            
+        random.seed()
+        return random.random() < 0.5
+
+
+
+
 @dataclass(slots=True)
 class Agent:
     firstname: str = field(default_factory=lambda: ''.join(random.choices(['lo', 'ko', 'ra', 'wo', 'cr', 'ar', 'no', 'ba'], k=random.randint(2,4))))
@@ -141,6 +160,14 @@ class Agent:
     def generate_stats(self, low: int = 0, high: int = 25):
         for stat in self.stats:
             self.stats[stat] = random.randint(low, high)
+
+    @property
+    def name(self) -> str:
+        return f"{self.firstname.title()} {self.lastname.title()}"
+
+    @property
+    def description(self) -> str:
+        return f"{self.firstname} {self.lastname} is a {self.stats['trust']}/{self.stats['wits']}/{self.stats['stealth']} agent"
 
 @dataclass(slots=True)
 class User:

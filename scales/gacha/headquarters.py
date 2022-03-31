@@ -70,14 +70,40 @@ async def render_dispatch_menu(ctx: InteractionContext, agent_id: str, mission_i
 
 class Headquarters(Scale):
 
-    def render_hq(self, author: Member, user: models.User) -> tuple[Embed, list]:
+    async def render_hq(self, author: Member, user: models.User) -> tuple[Embed, list]:
+
+        completed_missions: Update = Update()
+
+        brefings = []
+
+        i = 0
+        while i < len(user.agents):
+            agent = user.agents[i]
+            if agent.mission and agent.mission.ended():
+                if agent.mission.complete(agent):
+                    completed_missions.inc(peanuts=agent.mission.peanuts, world_peace=agent.mission.importance)
+                    brefings.append(f"{agent.name} has completed a mission and gathered {agent.mission.peanuts} 🥜 and {agent.mission.importance} 🌍")
+                    agent.mission = None
+                else:
+                    completed_missions.inc(world_peace=-agent.mission.importance)
+                    brefings.append(f"{agent.name} has failed a mission. Their service will be remembered. {agent.mission.importance} 🌍 lost.")
+
+                    # kill the agent
+                    user.agents.remove(agent)
+                    i -= 1
+            i += 1
+
+        if completed_missions:
+            completed_missions.set(agents=[asdict(agent) for agent in user.agents])
+            user = await self.bot.db.update_user(user.id, completed_missions)
+
         return Embed(
             title=f"{author}'s HQ",
-            description=f"`{len(user.agents)}` 🕵️   `{user.peanuts:,}` 🥜   `{user.world_peace:,}` ☮️" + ("\n\nRecruit a new agent to start your mission!" if not user.agents else ""),
+            description=f"`{len(user.agents)}` 🕵️   `{user.peanuts:,}` 🥜   `{user.world_peace:,}` 🌍" + ("\n\nRecruit a new agent to start your mission!" if not user.agents else "") + "\n\n" + "\n".join(brefings),
             color=0x2f3136,
             fields=[
                 EmbedField(
-                    name=f"{agent.firstname.title()} {agent.lastname.title()}",
+                    name=agent.name,
                     inline=True,
                     value=f"💤 {random.choice(IDLE_ACTIONS)}\n" + (' **/** '.join(map(str, agent.stats.values()))) if not agent.mission else f"⚡ {agent.mission.name}\n⏰ {time(agent.mission.ends_at, 'R')}",
                 ).to_dict() for agent in user.agents
@@ -103,13 +129,13 @@ class Headquarters(Scale):
         View HQ
         """
         user: models.User = await self.bot.db.fetch_user(ctx.author.id)
-        embed, components = self.render_hq(ctx.author, user)
-        await ctx.send(embed=embed, components=components)
+        embed, components = await self.render_hq(ctx.author, user)
+        await ctx.send(embed=embed, components=components, ephemeral=True)
 
     @component_callback("RENDERHQ")
     async def go_back(self, ctx: ComponentContext):
         user: models.User = await self.bot.db.fetch_user(ctx.author.id)
-        embed, components = self.render_hq(ctx.author, user)
+        embed, components = await self.render_hq(ctx.author, user)
         await ctx.edit_origin(embed=embed, components=components)
         
 
@@ -211,7 +237,7 @@ class Headquarters(Scale):
 
         await ctx.edit_origin(embed=Embed(
             title="You recruited an Agent",
-            description=f"**{new_agent.firstname.title()} {new_agent.lastname.title()}**\n" + (' **/** '.join(map(str, new_agent.stats.values()))),
+            description=f"**{new_agent.name}**\n" + (' **/** '.join(map(str, new_agent.stats.values()))),
             color=0x2f3136,
         ), components=[
             Button(
