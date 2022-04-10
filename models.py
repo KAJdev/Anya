@@ -174,7 +174,7 @@ class User:
     _id: ObjectId
     id: int
     permissions: int = AnyaPermissions.NONE.value
-    manga_page: int = 0
+    manga_pages: dict[str, int] = field(default_factory=dict)
     agents: list[Agent] = field(default_factory=list)
     peanuts: int = 0
     world_peace: int = 0
