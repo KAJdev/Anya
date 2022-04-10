@@ -1,10 +1,16 @@
 from dataclasses import dataclass, field
+from random import choices
 from dis_snek import slash_command, Embed, listen, Scale, InteractionContext, OptionTypes, slash_option, Button, SlashCommandChoice, ComponentContext, EmbedFooter
 import aiohttp, models, bs4
 
 MANGAS = {
     'spy_family': 'https://spy-xfamily.com/',
     'chainsaw_man': 'https://chainsaw-man-manga.online/'
+}
+
+PAGE_SCHEMA = {
+    'spy_family': lambda page: page.startswith('https://spy-xfamily.com/wp-content/uploads/'),
+    'chainsaw_man': lambda page: 'userapi.com/impf/' in page
 }
 
 @dataclass
@@ -30,7 +36,7 @@ class Manga(Scale):
         self.manga_index[manga].chapters[chapter_number] = len(self.manga_index[manga].pages)
 
         for page in chapter_soup.find_all('img'):
-            if page.get('src') and page.get('src').startswith(MANGAS.get(manga)+'wp-content/uploads/'):
+            if page.get('src') and PAGE_SCHEMA.get(manga)(page.get('src')):
                 self.manga_index[manga].pages.append(page.get('src'))
 
 
@@ -62,7 +68,7 @@ class Manga(Scale):
             try:
                 chapter_number = float(chapter.text.split()[-1])
             except ValueError:
-                self.bot.error(f"Could not parse chapter number `{chapter.text}`")
+                self.bot.error(f"Could not parse chapter number `{chapter.text}` for `{manga}`")
                 continue
 
             chapters.append((chapter_number, chapter_url))
@@ -123,14 +129,14 @@ class Manga(Scale):
     @listen()
     async def on_ready(self):
         for manga in MANGAS:
-            if manga not in self.manga_index:
+            if manga not in self.manga_index and manga not in self.indexing:
                 await self.index_manga(manga)
     
     @slash_command(name="manga", description="Fetch a page from a manga")
-    @slash_command(
+    @slash_option(
         name="manga",
-        description="What manga to read. Defaults to SPYxFAMILY.",
         opt_type=OptionTypes.STRING,
+        description="What manga to read. Defaults to SPYxFAMILY.",
         choices=[
             SlashCommandChoice('SPY x FAMILY', 'spy_family'),
             SlashCommandChoice('Chainsaw Man', 'chainsaw_man'),
@@ -174,7 +180,7 @@ class Manga(Scale):
         if page is None and chapter is not None:
             page = self.manga_index[manga].chapters[float(chapter)]
 
-        await ctx.send(embed=await self.render_manga_page(page), components=[
+        await ctx.send(embed=await self.render_manga_page(manga, page), components=[
             Button(
                 label="Back",
                 custom_id=f"MANGA:{manga}:{page - 1}:{ctx.author.id}",
@@ -190,8 +196,11 @@ class Manga(Scale):
         ])
 
     @manga_command.autocomplete('chapter')
-    async def manga_command_autocomplete(self, ctx: InteractionContext, chapter: str):
-        await ctx.send(choices=await self.search_chapters(chapter))
+    async def manga_command_autocomplete(self, ctx: InteractionContext, manga: str = 'spy_family', chapter: str = ''):
+        if manga in self.indexing:
+            await ctx.send(choices=[{'name': 'Indexing manga, please wait', 'value': 'NONE'}])
+        else:
+            await ctx.send(choices=await self.search_chapters(manga, chapter))
 
     @listen()
     async def on_component(self, event) -> None:
