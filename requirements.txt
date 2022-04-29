@@ -1,4 +1,4 @@
-git+https://github.com/Discord-Snake-Pit/Dis-Snek
+git+https://github.com/Discord-Snake-Pit/Dis-Snek#dev
 aiohttp
 motor
 pymongo[srv]
