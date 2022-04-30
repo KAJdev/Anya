@@ -35,6 +35,8 @@ class OCR(Scale):
         """
         get text from an image
         """
+        await ctx.defer()
+
         if not image.content_type.startswith("image/"):
             await ctx.send("This is not an image", ephemeral=True)
             return
@@ -63,6 +65,8 @@ class OCR(Scale):
 
     @context_menu(name="Get Text From Image", context_type=CommandTypes.MESSAGE)
     async def ocr_message(self, ctx: InteractionContext):
+        await ctx.defer()
+
         texts = await self.message_ocr(list(ctx.resolved.messages.values())[0])
 
         if all_text_length := sum(len(text[1]) for text in texts) > 0:
