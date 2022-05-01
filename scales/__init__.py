@@ -12,4 +12,5 @@ default = (
     'management.autopublish',
     'moderation.purge',
     'gacha.headquarters',
+    'gacha.leaderboard',
 )
