@@ -1,4 +1,3 @@
-from curses import ACS_PI
 from dataclasses import asdict
 from dis_snek import slash_command, listen, Scale, InteractionContext, Button, ComponentContext, Embed, EmbedField, component_callback, Member, Select, SelectOption, spread_to_rows
 import models
