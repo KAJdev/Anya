@@ -1,5 +1,6 @@
+from lib2to3.pytree import Base
 import aiohttp
-from dis_snek import listen, Scale, Webhook, File, Message, GuildText, AllowedMentions
+from dis_snek import listen, Scale, Webhook, File, Message, GuildText, AllowedMentions, BaseChannel, ThreadChannel
 import re, models, aiohttp, io
 
 from dis_snek.api.events import MessageCreate
@@ -23,7 +24,7 @@ def get_context(message: Message):
 
     return guild, channel, message_id
 
-async def get_anya_hook(channel: GuildText) -> Webhook:
+async def get_anya_hook(channel: BaseChannel) -> Webhook:
     # get the webhooks for the channel
     webhooks = await channel.fetch_webhooks()
 
@@ -58,7 +59,14 @@ class Messages(Scale):
             except NotFound:
                 return
 
-            anyas_webhook: Webhook = await get_anya_hook(message.channel)
+            thread = None
+
+            if message.channel.parent_channel:
+                thread = message.channel.id
+                anyas_webhook: Webhook = await get_anya_hook(message.channel.parent_channel)
+
+            else:
+                anyas_webhook: Webhook = await get_anya_hook(message.channel)
 
             # make own attachments
             attachments = []
@@ -74,7 +82,8 @@ class Messages(Scale):
                 avatar_url=referenced_message.author.avatar.url,
                 embeds=referenced_message.embeds,
                 files=attachments,
-                allowed_mentions=AllowedMentions(parse=[], users=[], roles=[])
+                allowed_mentions=AllowedMentions(parse=[], users=[], roles=[]),
+                thread=thread,
             )
 
     
