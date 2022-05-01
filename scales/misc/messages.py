@@ -59,6 +59,9 @@ class Messages(Scale):
             except NotFound:
                 return
 
+            if not referenced_message:
+                return
+
             thread = None
 
             if message.channel.parent_channel:
