@@ -6,7 +6,7 @@ humanize
 python-dotenv
 orjson
 dacite
-
 pytesseract
 Pillow
 bs4
+
