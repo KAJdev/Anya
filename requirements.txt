@@ -9,4 +9,3 @@ dacite
 pytesseract
 Pillow
 bs4
-
