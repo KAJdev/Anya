@@ -97,8 +97,8 @@ class TTLCache:
 
 class Database:
 
-    def __init__(self) -> None:
-        self.motor = AsyncIOMotorClient(os.getenv("MONGO"))
+    def __init__(self, io_loop) -> None:
+        self.motor = AsyncIOMotorClient(os.getenv("MONGO"), io_loop=io_loop)
         self.db = self.motor[os.getenv("DB_NAME", "staging").lower()]
         self.cache = TTLCache(constants.CACHE_TTL)
 

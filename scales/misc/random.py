@@ -2,6 +2,7 @@ import asyncio
 from datetime import datetime
 from dis_snek import slash_command, Scale, InteractionContext, OptionTypes, slash_option, SlashCommandChoice, Message, listen
 import random
+from main import DatabaseReady
 
 import models
 
@@ -18,7 +19,7 @@ class Random(Scale):
         }
 
     @listen()
-    async def on_ready(self):
+    async def on_database_ready(self, event: DatabaseReady):
         await self.pull_randoms()
         
     async def pull_randoms(self):

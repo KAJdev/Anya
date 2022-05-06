@@ -7,6 +7,7 @@ default = (
     'misc.random',
     'misc.manga',
     'misc.bin',
+    'misc.character',
     'management.modules',
     'management.autothread',
     'management.autopublish',

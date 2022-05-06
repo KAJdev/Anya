@@ -3,7 +3,6 @@ from enum import auto
 from dis_snek import slash_command, Embed, listen, Scale, InteractionContext, File, slash_option, Button, SlashCommandChoice, Modal, ModalContext, ShortText, ParagraphText
 import uuid
 import io
-from db import Update
 
 from dis_snek.api.events import ModalResponse
 

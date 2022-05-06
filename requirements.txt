@@ -1,4 +1,5 @@
 git+https://github.com/AnimeInterlink/Dis-Snek
+git+https://github.com/KAJdev/async-openai
 aiohttp
 motor
 pymongo[srv]

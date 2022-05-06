@@ -1,4 +1,6 @@
+import asyncio
 from contextlib import suppress
+from attr import define
 import dotenv
 import os
 import logging
@@ -12,6 +14,7 @@ from dis_snek import ActivityType, Intents, Status, Button, ButtonStyles
 from dis_snek import listen
 from dis_snek import AutoDefer
 from dis_snek import Activity
+from dis_snek.api.events import BaseEvent
 
 import scales
 import db
@@ -25,11 +28,18 @@ cls_log.setLevel(logging.INFO)
 bot_log = logging.getLogger('anya')
 bot_log.setLevel(logging.DEBUG)
 
+@define(slots=False, kw_only=False)
+class DatabaseReady(BaseEvent):
+    """
+    An event called when the database is ready
+    """
+    db: db.Database
+
 class Bot(Snake):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.db = db.Database()
+        self.db = None
         
         for module in scales.default:
             self.grow_scale(f"scales.{module}")
@@ -43,6 +53,10 @@ class Bot(Snake):
     @listen()
     async def on_ready(self):
         self.info("Gateway connected. Bot ready.")
+
+        self.db = db.Database(asyncio.get_event_loop())
+
+        self.dispatch(DatabaseReady(db=self.db))
 
         await self.change_presence(
             activity=Activity(

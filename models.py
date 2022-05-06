@@ -35,6 +35,7 @@ class ModuleToggles(Flag):
     MESSAGE_REFERENCES = auto()
     OCR_REPLY = auto()
     FXTWITTER = auto()
+    CHARACTER = auto()
 
     @classmethod
     def has_module(cls, modules: 'ModuleToggles', module: 'ModuleToggles') -> bool:
