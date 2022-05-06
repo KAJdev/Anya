@@ -7,10 +7,10 @@ class Source(Scale):
 
     @context_menu(name="Get Message Source", context_type=CommandTypes.MESSAGE)
     async def get_source(self, ctx: InteractionContext):
-        with io.BytesIO() as f:
-            f.write(json.dumps(ctx.message.to_dict(), indent=2))
+        with io.StringIO() as f:
+            f.write(json.dumps(list(ctx.resolved.messages.values())[0].to_dict(), indent=2))
             f.seek(0)
-            await ctx.send(File(f, filename="message.json"))
+            await ctx.send(file=File(f, file_name="message.json"))
     
     @slash_command(name="source", description="Get the source code for a command")
     @slash_option(
