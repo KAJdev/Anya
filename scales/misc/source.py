@@ -6,9 +6,9 @@ import inspect, models
 class Source(Scale):
 
     @context_menu(name="Get Message Source", context_type=CommandTypes.MESSAGE)
-    async def get_source(self, ctx: InteractionContext, message: Message):
+    async def get_source(self, ctx: InteractionContext):
         with io.BytesIO() as f:
-            f.write(json.dumps(message.to_dict(), indent=2))
+            f.write(json.dumps(ctx.message.to_dict(), indent=2))
             f.seek(0)
             await ctx.send(File(f, filename="message.json"))
     
