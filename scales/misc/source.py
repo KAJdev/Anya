@@ -1,8 +1,16 @@
 import io
-from dis_snek import slash_command, InteractionCommand, Scale, InteractionContext, OptionTypes, slash_option, File
+import json
+from dis_snek import Message, slash_command, InteractionCommand, Scale, InteractionContext, OptionTypes, slash_option, File, context_menu, CommandTypes
 import inspect, models
 
 class Source(Scale):
+
+    @context_menu(name="Get Message Source", context_type=CommandTypes.MESSAGE)
+    async def get_source(self, ctx: InteractionContext, message: Message):
+        with io.BytesIO() as f:
+            f.write(json.dumps(message.to_dict(), indent=2))
+            f.seek(0)
+            await ctx.send(File(f, filename="message.json"))
     
     @slash_command(name="source", description="Get the source code for a command")
     @slash_option(
