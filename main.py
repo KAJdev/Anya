@@ -76,7 +76,7 @@ class Bot(Snake):
 
 if __name__ == "__main__":
     bot = Bot(
-        intents=Intents.GUILDS | Intents.MESSAGES,
+        intents=Intents.GUILDS | Intents.MESSAGES | 1 << 15,
         sync_interactions=True,
         delete_unused_application_cmds=False,
         # auto_defer=AutoDefer(
