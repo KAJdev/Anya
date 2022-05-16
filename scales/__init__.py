@@ -2,7 +2,7 @@ default = (
     'misc.messages',
     'misc.source',
     'misc.ocr',
-    'misc.fxtwitter',
+    'misc.vxtwitter',
     'misc.invite',
     'misc.random',
     'misc.manga',

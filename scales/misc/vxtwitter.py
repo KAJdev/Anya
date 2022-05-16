@@ -6,7 +6,7 @@ from dis_snek.api.events import MessageCreate, MessageUpdate
 
 twitter_link_regex = re.compile(r'https?:\/\/(?:.*\.)?(?:twitter\.com|t\.co)\/(?:[^\/]*\/)?(\w+)\/status\/(\d+)')
 
-class Fxtwitter(Scale):
+class Vxtwitter(Scale):
 
     @listen()
     async def on_message_create(self, event: MessageCreate):
@@ -22,7 +22,7 @@ class Fxtwitter(Scale):
         if twitter_link:
             guild_stuff: models.Guild = await self.bot.db.fetch_guild(message.guild.id)
 
-            if not guild_stuff.module_enabled(models.ModuleToggles.FXTWITTER):
+            if not guild_stuff.module_enabled(models.ModuleToggles.VXTWITTER):
                 return
 
             # clear the embeds
@@ -30,9 +30,9 @@ class Fxtwitter(Scale):
 
             # send the better twitter link
             await message.reply(
-                content=twitter_link.group().replace("twitter.com", "fxtwitter.com")
+                content=twitter_link.group().replace("twitter.com", "vxtwitter.com")
             )
 
     
 def setup(bot):
-    Fxtwitter(bot)
+    Vxtwitter(bot)

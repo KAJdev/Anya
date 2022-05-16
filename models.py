@@ -34,7 +34,7 @@ class ModuleToggles(Flag):
 
     MESSAGE_REFERENCES = auto()
     OCR_REPLY = auto()
-    FXTWITTER = auto()
+    VXTWITTER = auto()
     CHARACTER = auto()
 
     @classmethod
@@ -47,11 +47,11 @@ class ModuleToggles(Flag):
 
     @classmethod
     def all(cls) -> 'ModuleToggles':
-        return cls.MESSAGE_REFERENCES | cls.OCR_REPLY | cls.FXTWITTER
+        return cls.MESSAGE_REFERENCES | cls.OCR_REPLY | cls.VXTWITTER
 
     @classmethod
     def default(cls) -> 'ModuleToggles':
-        return cls.MESSAGE_REFERENCES | cls.OCR_REPLY | cls.FXTWITTER
+        return cls.MESSAGE_REFERENCES | cls.OCR_REPLY | cls.VXTWITTER
 
 MISSION_STRUCTURES = {
     "trust": "Deliver",
