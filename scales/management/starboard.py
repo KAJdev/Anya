@@ -193,6 +193,9 @@ class Starboard(Scale):
         guild: models.Guild = await self.bot.db.fetch_guild(event.message.guild.id)
 
         if guild.module_enabled(ModuleToggles.STARBOARD):
+            if event.message.channel.id == guild.starboard_channel:
+                return
+
             await self.calculate_message_score(event.message)
 
     @listen()
@@ -202,6 +205,9 @@ class Starboard(Scale):
         guild: models.Guild = await self.bot.db.fetch_guild(event.message.guild.id)
 
         if guild.module_enabled(ModuleToggles.STARBOARD):
+            if event.message.channel.id == guild.starboard_channel:
+                return
+
             referenced = await event.message.fetch_referenced_message()
 
             if referenced is not None:
@@ -215,6 +221,9 @@ class Starboard(Scale):
         guild: models.Guild = await self.bot.db.fetch_guild(event.after.guild.id)
 
         if guild.module_enabled(ModuleToggles.STARBOARD):
+            if event.after.channel.id == guild.starboard_channel:
+                return
+
             if event.after.id in self.starboard_message_cache.setdefault(event.after.guild.id, {}):
                 await self.calculate_message_score(event.after)
 
