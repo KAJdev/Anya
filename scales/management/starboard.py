@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 import datetime
 import random
 from dacite import from_dict
-from dis_snek import Color, Embed, EmbedAuthor, EmbedFooter, IntervalTrigger, Message, Task, slash_command, listen, Scale, InteractionContext, OptionTypes, slash_option, GuildChannel, Permissions
+from dis_snek import Color, Embed, EmbedAuthor, EmbedFooter, IntervalTrigger, Member, Message, Task, User, slash_command, listen, Scale, InteractionContext, OptionTypes, slash_option, GuildChannel, Permissions
 import models
 
 from models import ModuleToggles, StarboardMessage
@@ -52,14 +52,22 @@ class Starboard(Scale):
         elif additional_reactions > 0:
             footer_text.append(f"{additional_reactions} reactions")
 
+        if isinstance(message.author, Member):
+            author = EmbedAuthor(
+                name=message.author.display_name,
+                icon_url=message.author.display_avatar.url
+            )
+        elif isinstance(message.author, User):
+            author = EmbedAuthor(
+                name=message.author.username,
+                icon_url=message.author.avatar.url
+            )
+
         embed = Embed(
             title=f'#{message.channel.name}',
             url=message.jump_url,
             description=message.content,
-            author=EmbedAuthor(
-                name=message.author.display_name,
-                icon_url=message.author.display_avatar.url
-            ),
+            author=author,
             footer=EmbedFooter(
                 text="  ".join(footer_text)
             ),
