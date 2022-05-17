@@ -177,10 +177,10 @@ class StarboardMessage:
     channel_id: int
     guild_id: int
     author_id: int
-    replies: int
     additional_reactions: int
 
     posted_message_id: int
+    replies: list[int] = field(default_factory=list)
     last_edited: datetime = field(default_factory=datetime.utcnow)
     posted: datetime = field(default_factory=datetime.utcnow)
 
