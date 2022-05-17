@@ -32,8 +32,6 @@ class Starboard(Scale):
 
         self.predicate_star_messages: dict[int, PredicateStarMessage] = {}
         self.starboard_message_cache: dict[int, dict[int, StarboardMessage]] = {}
-
-        self.messages_to_post: list[PredicateStarMessage] = []
         self.messages_to_update: list[PredicateStarMessage] = []
 
     def add_starboard_message_to_cache(self, msg: StarboardMessage):
@@ -76,22 +74,6 @@ class Starboard(Scale):
 
     @Task.create(IntervalTrigger(minutes=2))
     async def post_star_messages(self):
-        for predicate in self.messages_to_post:
-            guild: models.Guild = await self.bot.db.fetch_guild(predicate.message.guild.id)
-
-            if guild.module_enabled(ModuleToggles.STARBOARD) and guild.starboard_channel:
-                channel = await self.bot.fetch_channel(guild.starboard_channel)
-
-                if channel is not None:
-
-                    msg = await channel.send(embed=self.render_starboard_post(predicate.message, len(predicate.replies), predicate.additional_reactions))
-
-                    # save the message to the database
-                    new_post = await self.bot.db.save_starboard_message(msg, predicate)
-
-                    # add the new message to the cache
-                    self.add_starboard_message_to_cache(new_post)
-
         for predicate in self.messages_to_update:
             guild: models.Guild = await self.bot.db.fetch_guild(predicate.message.guild.id)
 
@@ -116,11 +98,10 @@ class Starboard(Scale):
                         # remove the previous message from the cache
                         del self.starboard_message_cache[msg.guild.id][predicate.message_id]
 
-        self.messages_to_post = []
         self.messages_to_update = []
                     
 
-    def calculate_message_score(self, message: Message, reply_id: int = None):
+    async def calculate_message_score(self, message: Message, reply_id: int = None):
         new_reaction_score = 0
 
         for reaction in message.reactions:
@@ -143,10 +124,24 @@ class Starboard(Scale):
 
         if self.predicate_star_messages[message.id].score >= MIN_SCORE:
             if message.id not in self.starboard_message_cache.setdefault(message.guild.id, {}):
-                self.messages_to_post.append(self.predicate_star_messages[message.id])
+                await self.post_starboard_message(message, self.predicate_star_messages[message.id])
             else:
                 self.messages_to_update.append(self.predicate_star_messages[message.id])
             del self.predicate_star_messages[message.id]
+
+    async def post_starboard_message(self, message: Message, predicate: PredicateStarMessage):
+        guild: models.Guild = await self.bot.db.fetch_guild(message.guild.id)
+        channel = await self.bot.fetch_channel(guild.starboard_channel)
+
+        if channel is not None:
+
+            msg = await channel.send(embed=self.render_starboard_post(message, len(predicate.replies), predicate.additional_reactions))
+
+            # save the message to the database
+            new_post = await self.bot.db.save_starboard_message(msg, predicate)
+
+            # add the new message to the cache
+            self.add_starboard_message_to_cache(new_post)
 
     
     @slash_command(name="starboard", sub_cmd_name="channel", sub_cmd_description="Set the channel where starboard messages will appear")
@@ -194,7 +189,7 @@ class Starboard(Scale):
         guild: models.Guild = await self.bot.db.fetch_guild(event.message.guild.id)
 
         if guild.module_enabled(ModuleToggles.STARBOARD):
-            self.calculate_message_score(event.message)
+            await self.calculate_message_score(event.message)
 
     @listen()
     async def on_message_create(self, event: MessageCreate):
@@ -206,7 +201,7 @@ class Starboard(Scale):
             referenced = await event.message.fetch_referenced_message()
 
             if referenced is not None:
-                self.calculate_message_score(referenced, event.message.id)
+                await self.calculate_message_score(referenced, event.message.id)
 
 
     @listen()
@@ -217,7 +212,7 @@ class Starboard(Scale):
 
         if guild.module_enabled(ModuleToggles.STARBOARD):
             if event.after.id in self.starboard_message_cache.setdefault(event.after.guild.id, {}):
-                self.calculate_message_score(event.after)
+                await self.calculate_message_score(event.after)
 
     
 def setup(bot):
