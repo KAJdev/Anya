@@ -142,7 +142,7 @@ class Starboard(Scale):
 
             check = await self.bot.db._fetch("starboard_messages", {"message_id": message.id})
 
-            if check is None:
+            if check is not None:
                 return
 
             msg = await channel.send(embed=self.render_starboard_post(message, len(predicate.replies), predicate.additional_reactions))
