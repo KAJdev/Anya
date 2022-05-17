@@ -2,7 +2,8 @@ import asyncio
 from audioop import add
 from dataclasses import dataclass, field
 import datetime
-from dis_snek import Embed, EmbedAuthor, EmbedFooter, IntervalTrigger, Message, Task, slash_command, listen, Scale, InteractionContext, OptionTypes, slash_option, GuildChannel, Permissions
+import random
+from dis_snek import Color, Embed, EmbedAuthor, EmbedFooter, IntervalTrigger, Message, Task, slash_command, listen, Scale, InteractionContext, OptionTypes, slash_option, GuildChannel, Permissions
 import models
 
 from models import ModuleToggles, StarboardMessage
@@ -60,7 +61,8 @@ class Starboard(Scale):
             ),
             footer=EmbedFooter(
                 text="    ".join(footer_text)
-            )
+            ),
+            color=Color.from_rgb(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         )
 
         if message.attachments:
