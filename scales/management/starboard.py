@@ -55,8 +55,8 @@ class Starboard(Scale):
             url=message.jump_url,
             description=message.content,
             author=EmbedAuthor(
-                name=message.author.name,
-                icon_url=message.author.avatar.url
+                name=message.author.display_name,
+                icon_url=message.author.display_avatar.url
             ),
             footer=EmbedFooter(
                 text="    ".join(footer_text)
