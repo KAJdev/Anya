@@ -222,18 +222,18 @@ class Starboard(Scale):
                 await self.calculate_message_score(referenced, event.message.id)
 
 
-    @listen()
-    async def on_message_update(self, event: MessageUpdate):
-        if event.after.guild is None: return
+    # @listen()
+    # async def on_message_update(self, event: MessageUpdate):
+    #     if event.after.guild is None: return
 
-        guild: models.Guild = await self.bot.db.fetch_guild(event.after.guild.id)
+    #     guild: models.Guild = await self.bot.db.fetch_guild(event.after.guild.id)
 
-        if guild.module_enabled(ModuleToggles.STARBOARD):
-            if event.after.channel.id == guild.starboard_channel:
-                return
+    #     if guild.module_enabled(ModuleToggles.STARBOARD):
+    #         if event.after.channel.id == guild.starboard_channel:
+    #             return
 
-            if event.after.id in self.starboard_message_cache.setdefault(event.after.guild.id, {}):
-                await self.calculate_message_score(event.after)
+    #         if event.after.id in self.starboard_message_cache.setdefault(event.after.guild.id, {}):
+    #             await self.calculate_message_score(event.after)
 
     
 def setup(bot):
