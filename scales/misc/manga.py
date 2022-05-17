@@ -191,7 +191,7 @@ class Manga(Scale):
                 style=2,
                 disabled=page == len(self.manga_index[manga].pages) - 1
             )
-        ])
+        ], ephemeral=True)
 
     @manga_command.autocomplete('chapter')
     async def manga_command_autocomplete(self, ctx: InteractionContext, manga: str = 'spy_family', chapter: str = ''):
