@@ -11,6 +11,7 @@ default = (
     'management.modules',
     'management.autothread',
     'management.autopublish',
+    'management.starboard',
     'moderation.purge',
     'gacha.headquarters',
     'gacha.leaderboard',
