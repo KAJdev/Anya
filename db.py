@@ -204,6 +204,7 @@ class Database:
         )
 
         starboard_message_dict = asdict(starboard_message)
+        del starboard_message_dict["_id"]
         starboard_message._id = (await self._insert("starboard_messages", starboard_message_dict)).inserted_id
 
         return starboard_message
