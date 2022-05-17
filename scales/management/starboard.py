@@ -40,9 +40,9 @@ class Starboard(Scale):
     def render_starboard_post(self, message: Message, reply_count: int, additional_reactions: int):
         footer_text = []
 
-        if len(reply_count) == 1:
+        if reply_count == 1:
             footer_text.append("1 reply")
-        elif len(reply_count) > 1:
+        elif reply_count > 1:
             footer_text.append(f"{reply_count} replies")
 
         if additional_reactions == 1:
@@ -73,7 +73,7 @@ class Starboard(Scale):
 
 
     @Task.create(IntervalTrigger(minutes=2))
-    async def post_star_messages(self):
+    async def starboard_loop(self):
         for predicate in self.messages_to_update:
             guild: models.Guild = await self.bot.db.fetch_guild(predicate.message.guild.id)
 
@@ -181,6 +181,8 @@ class Starboard(Scale):
             self.add_starboard_message_to_cache(message)
 
         self.bot.info(f"Starboard cache populated with {len(self.starboard_message_cache)} messages")
+
+        self.starboard_loop.start()
     
     @listen()
     async def on_message_reaction_add(self, event: MessageReactionAdd):
