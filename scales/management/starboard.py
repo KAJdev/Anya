@@ -218,7 +218,7 @@ class Starboard(Scale):
 
             referenced = await event.message.fetch_referenced_message()
 
-            if referenced is not None:
+            if referenced is not None and referenced.author.id != event.message.author.id:
                 await self.calculate_message_score(referenced, event.message.id)
 
 
