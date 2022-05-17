@@ -3,6 +3,7 @@ from audioop import add
 from dataclasses import dataclass, field
 import datetime
 import random
+from dacite import from_dict
 from dis_snek import Color, Embed, EmbedAuthor, EmbedFooter, IntervalTrigger, Message, Task, slash_command, listen, Scale, InteractionContext, OptionTypes, slash_option, GuildChannel, Permissions
 import models
 
@@ -180,7 +181,7 @@ class Starboard(Scale):
         last = await self.bot.db._fetch("starboard_messages", {'posted': {'$gte':datetime.datetime.utcnow() - datetime.timedelta(days=14)}}, limit=500)
 
         for message in last:
-            self.add_starboard_message_to_cache(message)
+            self.add_starboard_message_to_cache(from_dict(models.StarboardMessage, message))
 
         self.bot.info(f"Starboard cache populated with {len(self.starboard_message_cache)} messages")
 
