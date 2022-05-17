@@ -130,13 +130,20 @@ class Starboard(Scale):
                 await self.post_starboard_message(message, self.predicate_star_messages[message.id])
             else:
                 self.messages_to_update.append(self.predicate_star_messages[message.id])
-            del self.predicate_star_messages[message.id]
+
+            if message.id in self.predicate_star_messages:
+                del self.predicate_star_messages[message.id]
 
     async def post_starboard_message(self, message: Message, predicate: PredicateStarMessage):
         guild: models.Guild = await self.bot.db.fetch_guild(message.guild.id)
         channel = await self.bot.fetch_channel(guild.starboard_channel)
 
         if channel is not None:
+
+            check = await self.bot.db._fetch("starboard_messages", {"message_id": message.id})
+
+            if check is None:
+                return
 
             msg = await channel.send(embed=self.render_starboard_post(message, len(predicate.replies), predicate.additional_reactions))
 
