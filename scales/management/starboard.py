@@ -22,7 +22,7 @@ class PredicateStarMessage:
 
     @property
     def score(self) -> int:
-        return (len(self.replied) * REPLY_FACTOR) + (self.additional_reactions * REACT_SCORE)
+        return (len(self.replies) * REPLY_FACTOR) + (self.additional_reactions * REACT_SCORE)
 
 class Starboard(Scale):
 
