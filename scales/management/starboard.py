@@ -61,7 +61,7 @@ class Starboard(Scale):
                 icon_url=message.author.display_avatar.url
             ),
             footer=EmbedFooter(
-                text="    ".join(footer_text)
+                text="  ".join(footer_text)
             ),
             color=Color.from_rgb(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         )
