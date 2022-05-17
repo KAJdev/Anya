@@ -1,3 +1,4 @@
+import asyncio
 from audioop import add
 from dataclasses import dataclass, field
 import datetime
@@ -171,6 +172,9 @@ class Starboard(Scale):
 
     @listen()
     async def on_ready(self):
+        # wait for the database to be ready (little hacky)
+        await asyncio.sleep(5)
+
         self.bot.info("Populating starboard cache")
 
         self.starboard_message_cache = {}
