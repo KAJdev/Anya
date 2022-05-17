@@ -87,7 +87,7 @@ class Starboard(Scale):
 
                     msg = await self.bot.http.edit_message({
                         'embeds': [self.render_starboard_post(predicate.message, len(predicate.replies), predicate.additional_reactions).to_dict()],
-                    }, channel.id, predicate.message_id)
+                    }, channel.id, predicate.message.id)
 
                     if msg:
                         msg = Message.from_dict(msg)
@@ -99,7 +99,7 @@ class Starboard(Scale):
                         self.starboard_message_cache[msg.guild.id][msg.id] = msg
 
                         # remove the previous message from the cache
-                        del self.starboard_message_cache[msg.guild.id][predicate.message_id]
+                        del self.starboard_message_cache[msg.guild.id][predicate.message.id]
 
         self.messages_to_update = []
                     
