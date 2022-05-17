@@ -109,8 +109,6 @@ class Manga(Scale):
 
         embed.set_image(url=self.manga_index[manga].pages[page])
 
-        print(f"Rendering page {page}: {self.manga_index[manga].pages[page]}")
-
         return embed
 
     async def get_pages_chapter(self, manga: str, page: int = 0) -> float:

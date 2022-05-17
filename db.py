@@ -2,6 +2,8 @@ import asyncio
 from datetime import datetime, timedelta
 from typing import Any, Optional
 import os
+
+from dis_snek import Message
 import models
 import constants
 import pymongo
@@ -9,6 +11,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from bson.objectid import ObjectId
 from dacite import from_dict
 from dataclasses import asdict
+
+from scales.management.starboard import PredicateStarMessage
 
 class Update:
 
@@ -188,3 +192,21 @@ class Database:
             self.cache.put("guilds", id, guild)
 
         return guild
+
+    async def save_starboard_message(self, message: Message, predicate: PredicateStarMessage) -> models.StarboardMessage:
+        starboard_message = models.StarboardMessage(
+            _id=None,
+            message_id=predicate.message.id,
+            channel_id=predicate.message.channel.id,
+            guild_id=predicate.message.guild.id,
+            author_id=predicate.message.author.id,
+            posted_message_id=message.id,
+            replies=predicate.replies,
+            additional_reactions=predicate.additional_reactions,
+        )
+
+        starboard_message_dict = asdict(starboard_message)
+        starboard_message._id = (await self._insert("starboard_messages", starboard_message_dict)).inserted_id
+
+        return starboard_message
+

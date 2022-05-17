@@ -36,6 +36,7 @@ class ModuleToggles(Flag):
     OCR_REPLY = auto()
     VXTWITTER = auto()
     CHARACTER = auto()
+    STARBOARD = auto()
 
     @classmethod
     def has_module(cls, modules: 'ModuleToggles', module: 'ModuleToggles') -> bool:
@@ -47,7 +48,7 @@ class ModuleToggles(Flag):
 
     @classmethod
     def all(cls) -> 'ModuleToggles':
-        return cls.MESSAGE_REFERENCES | cls.OCR_REPLY | cls.VXTWITTER
+        return cls.MESSAGE_REFERENCES | cls.OCR_REPLY | cls.VXTWITTER | cls.CHARACTER | cls.STARBOARD
 
     @classmethod
     def default(cls) -> 'ModuleToggles':
@@ -148,8 +149,6 @@ class Mission:
         return random.random() < 0.5
 
 
-
-
 @dataclass(slots=True)
 class Agent:
     firstname: str = field(default_factory=lambda: ''.join(random.choices(['lo', 'ko', 'ra', 'wo', 'cr', 'ar', 'no', 'ba'], k=random.randint(2,4))))
@@ -169,6 +168,21 @@ class Agent:
     @property
     def description(self) -> str:
         return f"{self.firstname} {self.lastname} is a {self.stats['trust']}/{self.stats['wits']}/{self.stats['stealth']} agent"
+
+@dataclass(slots=True)
+class StarboardMessage:
+    _id: ObjectId
+
+    message_id: int
+    channel_id: int
+    guild_id: int
+    author_id: int
+    replies: int
+    additional_reactions: int
+
+    posted_message_id: int
+    last_edited: datetime = field(default_factory=datetime.utcnow)
+    posted: datetime = field(default_factory=datetime.utcnow)
 
 @dataclass(slots=True)
 class User:
@@ -197,6 +211,7 @@ class Guild:
     modules: int = ModuleToggles.default().value
     auto_thread_channels: list[int] = field(default_factory=list)
     auto_publish_channels: list[int] = field(default_factory=list)
+    starboard_channel: int = None
 
     def module_enabled(self, module: ModuleToggles) -> bool:
         return ModuleToggles.has_module(ModuleToggles(self.modules), module)
