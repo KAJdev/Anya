@@ -12,8 +12,6 @@ from bson.objectid import ObjectId
 from dacite import from_dict
 from dataclasses import asdict
 
-from scales.management.starboard import PredicateStarMessage
-
 class Update:
 
     def __init__(self, **kwargs) -> None:
@@ -193,7 +191,7 @@ class Database:
 
         return guild
 
-    async def save_starboard_message(self, message: Message, predicate: PredicateStarMessage) -> models.StarboardMessage:
+    async def save_starboard_message(self, message: Message, predicate) -> models.StarboardMessage:
         starboard_message = models.StarboardMessage(
             _id=None,
             message_id=predicate.message.id,
