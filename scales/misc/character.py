@@ -98,15 +98,15 @@ class Character(Scale):
             'completion': completion,
         }
         
-        await self.bot.db._update({'prompt': prompt}, {'$set': intactn}, upsert=True)
+        await self.bot.db._update("training_data", {'prompt': prompt}, {'$set': intactn}, upsert=True)
 
-        amount = await self.bot.db.db.count_documents({})
+        amount = await self.bot.db.db.training_data.count_documents({})
 
         await ctx.send(f"Inserted interaction `#{amount}`:\n\n```json\n{intactn}```")
 
     @slash_command("data", "view the last few JSONL lines of training data")
     async def data(self, ctx: InteractionContext):
-        last_few = await self.bot.db.db.find({}).sort('_id', -1).limit(10).to_list(length=10)
+        last_few = await self.bot.db.db.training_data.find({}).sort('_id', -1).limit(10).to_list(length=10)
 
         await ctx.send(f"Last few interactions:\n\n```json\n{last_few}```")
 
