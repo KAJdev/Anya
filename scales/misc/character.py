@@ -1,7 +1,7 @@
 import asyncio
 import random
 import time
-from dis_snek import listen, Scale
+from dis_snek import InteractionContext, listen, Scale, slash_command, slash_option
 from os import getenv
 import openai
 import models
@@ -78,6 +78,37 @@ class Character(Scale):
         super().__init__()
         self.memory = Memory()
         self.past_messages = LimitedList(100)
+
+    @slash_command("train", "train anya with a message")
+    @slash_option("prompt", "what is said to anya",
+        opt_type=3,
+        required=True
+    )
+    @slash_option("completion", "what should be said by anya",
+        opt_type=3,
+        required=True,
+    )
+    async def train(self, ctx: InteractionContext, prompt: str, completion: str):
+        """
+        Train Anya with a message
+        """
+
+        intactn = {
+            'prompt': prompt,
+            'completion': completion,
+        }
+        
+        await self.bot.db._update({'prompt': prompt}, {'$set': intactn}, upsert=True)
+
+        amount = await self.bot.db.db.count_documents({})
+
+        await ctx.send(f"Inserted interaction `#{amount}`:\n\n```json\n{intactn}```")
+
+    @slash_command("data", "view the last few JSONL lines of training data")
+    async def data(self, ctx: InteractionContext):
+        last_few = await self.bot.db.db.find({}).sort('_id', -1).limit(10).to_list(length=10)
+
+        await ctx.send(f"Last few interactions:\n\n```json\n{last_few}```")
 
     @listen()
     async def on_message_create(self, event: MessageCreate):
