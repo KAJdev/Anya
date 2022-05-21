@@ -12,10 +12,10 @@ from db import Update
 
 from dis_snek.api.events import MessageReactionAdd, MessageCreate, MessageUpdate
 
-REPLY_FACTOR = 1.5
+REPLY_FACTOR = 0.75
 REACT_SCORE = 1
 
-MIN_SCORE = 5
+MIN_SCORE = 7
 
 @dataclass(slots=True)
 class PredicateStarMessage:
