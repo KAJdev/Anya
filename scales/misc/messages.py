@@ -66,7 +66,7 @@ class Messages(Scale):
 
             if pc := getattr(event.message.channel, "parent_id", None) is not None:
                 thread = message.channel.id
-                anyas_webhook: Webhook = await get_anya_hook(self.bot.fetch_channel(pc))
+                anyas_webhook: Webhook = await get_anya_hook(await self.bot.fetch_channel(pc))
 
             else:
                 anyas_webhook: Webhook = await get_anya_hook(message.channel)
