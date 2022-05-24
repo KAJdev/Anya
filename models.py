@@ -211,7 +211,7 @@ class Guild:
     modules: int = ModuleToggles.default().value
     auto_thread_channels: list[int] = field(default_factory=list)
     auto_publish_channels: list[int] = field(default_factory=list)
-    starboard_channels: list[int] = field(default_factory=list)
+    starboard_overrides: dict[str, bool] = field(default_factory=dict)
     starboard_channel: int = None
 
     def module_enabled(self, module: ModuleToggles) -> bool:

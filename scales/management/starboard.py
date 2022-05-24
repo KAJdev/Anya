@@ -78,7 +78,7 @@ class Starboard(Scale):
             embed.set_image(url=message.attachments[0].url)
 
         if message.embeds:
-            embed.set_thumbnail(url=message.embeds[0].thumbnail.url)
+            embed.set_thumbnail(url=getattr(getattr(message.embeds[0], "thumbnail", None), 'url', None))
 
         return embed
 
@@ -212,7 +212,14 @@ class Starboard(Scale):
             if event.message.channel.id == guild.starboard_channel:
                 return
 
-            await self.calculate_message_score(event.message)
+            # respect the allowed starboard channels
+            allowed = guild.starboard_overrides.get(str(event.message.channel.id), True)
+
+            if event.message.channel.parent_channel is not None:
+                allowed = guild.starboard_overrides.get(str(event.message.channel.parent_channel.id), True)
+
+            if allowed:
+                await self.calculate_message_score(event.message)
 
     @listen()
     async def on_message_create(self, event: MessageCreate):
@@ -225,18 +232,16 @@ class Starboard(Scale):
                 return
 
             # respect the allowed starboard channels
-            if len(guild.starboard_channels) > 0:
-                if event.message.channel.parent_channel is not None:
-                    if event.message.channel.parent_channel.id not in guild.starboard_channels:
-                        return
+            allowed = guild.starboard_overrides.get(str(event.message.channel.id), True)
 
-                elif event.message.channel.id not in guild.starboard_channels:
-                    return
+            if event.message.channel.parent_channel is not None:
+                allowed = guild.starboard_overrides.get(str(event.message.channel.parent_channel.id), True)
 
-            referenced = await event.message.fetch_referenced_message()
+            if allowed:
+                referenced = await event.message.fetch_referenced_message()
 
-            if referenced is not None and referenced.author.id != event.message.author.id:
-                await self.calculate_message_score(referenced, event.message.id)
+                if referenced is not None and referenced.author.id != event.message.author.id:
+                    await self.calculate_message_score(referenced, event.message.id)
 
 
     # @listen()
@@ -276,13 +281,9 @@ class Starboard(Scale):
             return
 
         if enabled is None:
-            enabled = not channel.id in guild.starboard_channels
+            enabled = not guild.starboard_overrides.get(str(channel.id), True)
 
-        if enabled and channel.id not in guild.starboard_channels:
-            await self.bot.db.update_guild(guild.id, Update().push(starboard_channels=channel.id))
-
-        if not enabled and channel.id in guild.starboard_channels:
-            await self.bot.db.update_guild(guild.id, Update().pull(starboard_channels=channel.id))
+        await self.bot.db.update_guild(guild.id, {'$set': {f'starboard_overrides.{channel.id}': enabled}})
 
         await ctx.send(f"Popular messages in {channel.mention} will be posted on the starboard." if enabled else f"No messages from {channel.mention} will be posted on the starboard.", ephemeral=True)
 
