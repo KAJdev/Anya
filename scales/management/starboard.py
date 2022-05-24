@@ -215,8 +215,8 @@ class Starboard(Scale):
             # respect the allowed starboard channels
             allowed = guild.starboard_overrides.get(str(event.message.channel.id), True)
 
-            if event.message.channel.parent_channel is not None:
-                allowed = guild.starboard_overrides.get(str(event.message.channel.parent_channel.id), True)
+            if pc := getattr(event.message.channel, "parent_channel", None) is not None:
+                allowed = guild.starboard_overrides.get(str(pc.id), True)
 
             if allowed:
                 await self.calculate_message_score(event.message)
@@ -234,8 +234,8 @@ class Starboard(Scale):
             # respect the allowed starboard channels
             allowed = guild.starboard_overrides.get(str(event.message.channel.id), True)
 
-            if event.message.channel.parent_channel is not None:
-                allowed = guild.starboard_overrides.get(str(event.message.channel.parent_channel.id), True)
+            if pc := getattr(event.message.channel, "parent_channel", None) is not None:
+                allowed = guild.starboard_overrides.get(str(pc.id), True)
 
             if allowed:
                 referenced = await event.message.fetch_referenced_message()
