@@ -224,6 +224,15 @@ class Starboard(Scale):
             if event.message.channel.id == guild.starboard_channel:
                 return
 
+            # respect the allowed starboard channels
+            if len(guild.starboard_channels) > 0:
+                if event.message.channel.parent_channel is not None:
+                    if event.message.channel.parent_channel.id not in guild.starboard_channels:
+                        return
+
+                elif event.message.channel.id not in guild.starboard_channels:
+                    return
+
             referenced = await event.message.fetch_referenced_message()
 
             if referenced is not None and referenced.author.id != event.message.author.id:
@@ -242,6 +251,40 @@ class Starboard(Scale):
 
     #         if event.after.id in self.starboard_message_cache.setdefault(event.after.guild.id, {}):
     #             await self.calculate_message_score(event.after)
+
+    @slash_command(name="starboard", sub_cmd_name="toggle", sub_cmd_description="Toggle the ability to put msgs on the starboard for a channel")
+    @slash_option(
+        name="channel",
+        description="The channel to allow/deny starboard msgs for",
+        opt_type=OptionTypes.CHANNEL,
+        required=True,
+    )
+    @slash_option(
+        name="enabled",
+        opt_type=OptionTypes.BOOLEAN,
+        description="will enable or disable explicitly.",
+        required=False,
+    )
+    async def starboard_toggle(self, ctx: InteractionContext, channel: GuildChannel, enabled: bool = None):
+        """
+        toggle auto threading for a channel
+        """
+        guild: models.Guild = await self.bot.db.fetch_guild(ctx.guild.id)
+
+        if not ctx.author.has_permission(Permissions.MANAGE_GUILD):
+            await ctx.send("You do not have permission to toggle starboarding messages for channels", ephemeral=True)
+            return
+
+        if enabled is None:
+            enabled = not channel.id in guild.starboard_channels
+
+        if enabled and channel.id not in guild.starboard_channels:
+            await self.bot.db.update_guild(guild.id, Update().push(starboard_channels=channel.id))
+
+        if not enabled and channel.id in guild.starboard_channels:
+            await self.bot.db.update_guild(guild.id, Update().pull(starboard_channels=channel.id))
+
+        await ctx.send(f"Popular messages in {channel.mention} will be posted on the starboard." if enabled else f"No messages from {channel.mention} will be posted on the starboard.", ephemeral=True)
 
     
 def setup(bot):
