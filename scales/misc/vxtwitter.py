@@ -19,10 +19,10 @@ class Vxtwitter(Extension):
         twitter_link = re.search(twitter_link_regex, message.content or "")
 
         # fetch the message if there is one
-        if twitter_link and any(['https://twitter.com/i/videos' in embed.url for embed in message.embeds]):
+        if twitter_link and any([bool(embed.video) for embed in message.embeds]):
             guild_stuff: models.Guild = await self.bot.db.fetch_guild(message.guild.id)
 
-            if not guild_stuff.module_enabled(models.ModuleToggles.VXTWITTER):
+            if not guild_stuff.module_enabled(models.ModuleToggles.FXTWITTER):
                 return
 
             # clear the embeds
@@ -30,7 +30,7 @@ class Vxtwitter(Extension):
 
             # send the better twitter link
             await message.reply(
-                content=twitter_link.group().replace("twitter.com", "vxtwitter.com")
+                content=twitter_link.group().replace("twitter.com", "fxtwitter.com")
             )
 
     
