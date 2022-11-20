@@ -1,10 +1,10 @@
 from lib2to3.pytree import Base
 import aiohttp
-from dis_snek import listen, Scale, Webhook, File, Message, GuildText, AllowedMentions, BaseChannel, ThreadChannel
+from naff import listen, Extension, Webhook, File, Message, GuildText, AllowedMentions, BaseChannel, ThreadChannel
 import re, models, aiohttp, io
 
-from dis_snek.api.events import MessageCreate
-from dis_snek.client.errors import NotFound
+from naff.api.events import MessageCreate
+from naff.client.errors import NotFound
 
 message_link_regex = re.compile(r'https?:\/\/(?:.*\.)?(?:discord(?:app)?\.com|discord\.gg)\/channels\/(\d+)\/(\d+)\/(\d+)')
 message_id_regex = re.compile(r'(\d+){10,}')
@@ -36,7 +36,7 @@ async def get_anya_hook(channel: BaseChannel) -> Webhook:
         # if there is none, create one
         return await channel.create_webhook(name='Anya Message References')
 
-class Messages(Scale):
+class Messages(Extension):
     
     @listen()
     async def on_message_create(self, event: MessageCreate):
@@ -64,7 +64,8 @@ class Messages(Scale):
 
             thread = None
 
-            if pc := getattr(event.message.channel, "parent_id", None) is not None:
+            if pc := event.message.channel.__dict__.get('parent_id') is not None:
+                print(pc)
                 thread = message.channel.id
                 anyas_webhook: Webhook = await get_anya_hook(await self.bot.fetch_channel(pc))
 

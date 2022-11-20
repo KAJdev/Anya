@@ -47,3 +47,5 @@ pip install -r requirements.txt
 ```bash
 python3.10 main.py
 ```
+
+git push dokku-local main:master

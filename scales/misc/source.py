@@ -1,9 +1,9 @@
 import io
 import json
-from dis_snek import Message, slash_command, InteractionCommand, Scale, InteractionContext, OptionTypes, slash_option, File, context_menu, CommandTypes
+from naff import Message, slash_command, InteractionCommand, Extension, InteractionContext, OptionTypes, slash_option, File, context_menu, CommandTypes
 import inspect, models
 
-class Source(Scale):
+class Source(Extension):
 
     @context_menu(name="Get Message Source", context_type=CommandTypes.MESSAGE)
     async def get_source(self, ctx: InteractionContext):

@@ -4,18 +4,18 @@ from dataclasses import dataclass, field
 import datetime
 import random
 from dacite import from_dict
-from dis_snek import Color, Embed, EmbedAuthor, EmbedFooter, IntervalTrigger, Member, Message, Task, User, slash_command, listen, Scale, InteractionContext, OptionTypes, slash_option, GuildChannel, Permissions
+from naff import Color, Embed, EmbedAuthor, EmbedFooter, IntervalTrigger, Member, Message, Task, User, slash_command, listen, Extension, InteractionContext, OptionTypes, slash_option, GuildChannel, Permissions
 import models
 
 from models import ModuleToggles, StarboardMessage
 from db import Update
 
-from dis_snek.api.events import MessageReactionAdd, MessageCreate, MessageUpdate
+from naff.api.events import MessageReactionAdd, MessageCreate, MessageUpdate
 
 REPLY_FACTOR = 0.75
 REACT_SCORE = 1
 
-MIN_SCORE = 7
+MIN_SCORE = 4
 
 @dataclass(slots=True)
 class PredicateStarMessage:
@@ -27,7 +27,7 @@ class PredicateStarMessage:
     def score(self) -> int:
         return (len(self.replies) * REPLY_FACTOR) + (self.additional_reactions * REACT_SCORE)
 
-class Starboard(Scale):
+class Starboard(Extension):
 
     def __init__(self, bot):
         super().__init__()
@@ -287,6 +287,35 @@ class Starboard(Scale):
 
         await ctx.send(f"Popular messages in {channel.mention} will be posted on the starboard." if enabled else f"No messages from {channel.mention} will be posted on the starboard.", ephemeral=True)
 
+
+    @slash_command(name="starboard", sub_cmd_name="overrides", sub_cmd_description="View the starboard overrides for this server")
+    async def starboard_overrides(self, ctx: InteractionContext):
+        """
+        view the starboard overrides for this server
+        """
+        guild: models.Guild = await self.bot.db.fetch_guild(ctx.guild.id)
+
+        if not ctx.author.has_permission(Permissions.MANAGE_GUILD):
+            await ctx.send("You do not have permission to view starboard overrides", ephemeral=True)
+            return
+
+        overrides = guild.starboard_overrides
+
+        if not overrides:
+            await ctx.send("No overrides set", ephemeral=True)
+            return
+
+        embed = Embed(title="Starboard Overrides", color=0xFFD700)
+
+        for channel_id, enabled in overrides.items():
+            channel: GuildChannel = ctx.guild.get_channel(int(channel_id))
+
+            if channel is None:
+                continue
+
+            embed.add_field(name=channel.name, value=f"Enabled: {enabled}")
+
+        await ctx.send(embed=embed)
     
 def setup(bot):
     Starboard(bot)

@@ -1,12 +1,12 @@
 from datetime import datetime
 from enum import auto
-from dis_snek import slash_command, Embed, listen, Scale, InteractionContext, File, slash_option, Button, SlashCommandChoice, Modal, ModalContext, ShortText, ParagraphText
+from naff import slash_command, Embed, listen, Extension, InteractionContext, File, slash_option, Button, SlashCommandChoice, Modal, ModalContext, ShortText, ParagraphText
 import uuid
 import io
 
-from dis_snek.api.events import ModalResponse
+from naff.api.events import ModalResponse
 
-class Bin(Scale):
+class Bin(Extension):
     
     @slash_command(name="paste", description="Discord pastes")
     @slash_option(

@@ -1,12 +1,12 @@
-from dis_snek import slash_command, listen, Scale, InteractionContext, OptionTypes, slash_option, GuildChannel, Permissions
+from naff import slash_command, listen, Extension, InteractionContext, OptionTypes, slash_option, GuildChannel, Permissions
 import models
 
 from models import ModuleToggles
 from db import Update
 
-from dis_snek.api.events import MessageCreate
+from naff.api.events import MessageCreate
 
-class AutoThread(Scale):
+class AutoThread(Extension):
     
     @slash_command(name="autothread", sub_cmd_name="toggle", sub_cmd_description="Toggle autothread for a channel")
     @slash_option(

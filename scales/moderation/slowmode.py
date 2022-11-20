@@ -1,7 +1,7 @@
-from dis_snek import slash_command, InteractionCommand, Scale, InteractionContext, OptionTypes, slash_option, GuildChannel
+from naff import slash_command, InteractionCommand, Extension, InteractionContext, OptionTypes, slash_option, GuildChannel
 import inspect
 
-class Slowmode(Scale):
+class Slowmode(Extension):
     
     @slash_command(name="slowmode", description="Set the slowmode for a channel")
     @slash_option(

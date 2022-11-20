@@ -1,14 +1,14 @@
 import asyncio
 from datetime import datetime
-from dis_snek import slash_command, Scale, InteractionContext, OptionTypes, slash_option, SlashCommandChoice, Message, listen
+from naff import slash_command, Extension, InteractionContext, OptionTypes, slash_option, SlashCommandChoice, Message, listen
 import random
 from main import DatabaseReady
 
 import models
 
-from dis_snek.api.events import MessageCreate
+from naff.api.events import MessageCreate
 
-class Random(Scale):
+class Random(Extension):
 
     def __init__(self, bot):
         super().__init__()

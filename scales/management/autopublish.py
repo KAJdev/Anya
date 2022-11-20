@@ -1,10 +1,10 @@
-from dis_snek import slash_command, listen, Scale, InteractionContext, OptionTypes, slash_option, GuildChannel, Permissions, ChannelTypes
+from naff import slash_command, listen, Extension, InteractionContext, OptionTypes, slash_option, GuildChannel, Permissions, ChannelTypes
 import models
 from db import Update
 
-from dis_snek.api.events import MessageCreate
+from naff.api.events import MessageCreate
 
-class AutoPublish(Scale):
+class AutoPublish(Extension):
     
     @slash_command(name="autopublish", sub_cmd_name="toggle", sub_cmd_description="Toggle auto publishing for a channel")
     @slash_option(

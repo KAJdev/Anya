@@ -1,6 +1,6 @@
-from dis_snek import slash_command, Scale, InteractionContext, OptionTypes, slash_option, Button
+from naff import slash_command, Extension, InteractionContext, OptionTypes, slash_option, Button
 
-class Invite(Scale):
+class Invite(Extension):
     
     @slash_command(name="invite", description="Add me to your server")
     @slash_option(

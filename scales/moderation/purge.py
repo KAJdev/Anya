@@ -1,11 +1,11 @@
 import re
 import time
-from dis_snek import slash_command, InteractionCommand, Scale, InteractionContext, OptionTypes, slash_option, GuildChannel, DISCORD_EPOCH
+from naff import slash_command, InteractionCommand, Extension, InteractionContext, OptionTypes, slash_option, GuildChannel, DISCORD_EPOCH
 import inspect
 
 user_id_regex = re.compile(r"<@!?(\d+)>")
 
-class Purge(Scale):
+class Purge(Extension):
     
     @slash_command(name="purge", description="Purge messages based on many filters")
     @slash_option(

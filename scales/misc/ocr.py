@@ -1,11 +1,11 @@
 from cgitb import text
 import io
-from dis_snek import slash_command, Message, listen, Scale, InteractionContext, OptionTypes, slash_option, Attachment, SlashCommandChoice, File, message_command, context_menu, CommandTypes
+from naff import slash_command, Message, listen, Extension, InteractionContext, OptionTypes, slash_option, Attachment, SlashCommandChoice, File, context_menu, CommandTypes
 import aiohttp, PIL, pytesseract, models
 
-from dis_snek.api.events import MessageCreate
+from naff.api.events import MessageCreate
 
-class OCR(Scale):
+class OCR(Extension):
 
     async def do_ocr(self, image: Attachment, lang: str = 'eng') -> dict:
         async with aiohttp.ClientSession() as session:

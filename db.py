@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from typing import Any, Optional
 import os
 
-from dis_snek import Message
+from naff import Message
 import models
 import constants
 import pymongo
@@ -208,4 +208,43 @@ class Database:
         starboard_message._id = (await self._insert("starboard_messages", starboard_message_dict)).inserted_id
 
         return starboard_message
+
+    async def fetch_tamagotchi(self, owner: int) -> Optional[models.Tamagotchi]:
+        if tamagotchi := self.cache.get("tamagotchi", owner):
+            return tamagotchi
+
+        tamagotchi = await self._fetch("tamagotchi", {"owner": owner}, limit=1)
+
+        if tamagotchi is None:
+            return None
+
+        tamagotchi = from_dict(data_class=models.Tamagotchi, data=tamagotchi)
+
+        self.cache.put("tamagotchi", owner, tamagotchi)
+
+        return tamagotchi
+
+    async def create_tamagotchi(self, owner: int, name: str) -> models.Tamagotchi:
+        tamagotchi = models.Tamagotchi(
+            _id=None,
+            owner=owner,
+            name=name,
+        )
+
+        tamagotchi_dict = asdict(tamagotchi)
+        del tamagotchi_dict["_id"]
+        tamagotchi._id = (await self._insert("tamagotchi", tamagotchi_dict)).inserted_id
+
+        self.cache.put("tamagotchi", owner, tamagotchi)
+
+        return tamagotchi
+
+    async def update_tamagotchi(self, owner: int, data: Update | dict) -> None:
+        tamagotchi = await self._find_and_update("tamagotchi", {"owner": owner}, data.update if isinstance(data, Update) else data)
+
+        if tamagotchi is not None:
+            tamagotchi = from_dict(data_class=models.Tamagotchi, data=tamagotchi)
+            self.cache.put("tamagotchi", owner, tamagotchi)
+
+        return tamagotchi
 

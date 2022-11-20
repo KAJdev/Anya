@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import random
 from typing import Optional
-from dis_snek import Embed, MISSING
+from naff import Embed, MISSING
 import constants
 
 emojis = {

@@ -2,12 +2,12 @@ from enum import Enum
 import math
 from optparse import Option
 import string
-from typing import Optional
+from typing import Any, Optional
 from bson.objectid import ObjectId
 from datetime import date, datetime, timedelta
-from dis_snek import Scale, Embed, Button, ActionRow
-from dis_snek import Permissions
-from dataclasses import dataclass, field
+from naff import Extension, Embed, Button, ActionRow
+from naff import Permissions
+from dataclasses import asdict, dataclass, field
 from utils import emoji, color, progress, time
 import constants
 import uuid
@@ -203,6 +203,118 @@ class User:
     def remove_permision(self, permission: AnyaPermissions) -> None:
         self.permissions &= ~permission.value
 
+@dataclass
+class TamagotchiGenes:
+
+    seed: float
+    height: float
+    width: float
+    segments: float
+
+    color_r: float
+    color_g: float
+    color_b: float
+
+    body_edge_color_r: float
+    body_edge_color_g: float
+    body_edge_color_b: float
+
+    eye_color_r: float
+    eye_color_g: float
+    eye_color_b: float
+    eye_size: float
+    eye_shape: bool
+
+    mouth_color_r: float
+    mouth_color_g: float
+    mouth_color_b: float
+    mouth_size: float
+    mouth_shape: bool
+
+    body_shape: bool
+    body_width: float
+    body_height: float
+    body_edge_width: float
+
+    head_shape: bool
+    head_width: float
+    head_height: float
+    head_edge_width: float
+
+    arm_length: float
+    arm_angle: float
+    arm_height: float
+    arm_width: float
+
+    arm_color_r: float
+    arm_color_g: float
+    arm_color_b: float
+
+    mutation_rate: float
+    female: bool
+
+    class BoundedValue(float):
+        def bounded(self, upper, lower, digits = None) -> int:
+            """
+            return a float clamped between upper and lower in integer form
+            """
+
+            return round(((upper - lower) * self) + lower, digits)
+
+    def __post_init__(self) -> None:
+        # clamp values to be between 0 and 1, via wrapping
+        for key, value in self.__dict__.items():
+            if value < 0:
+                self.__dict__[key] = 1 + value
+            elif value > 1:
+                self.__dict__[key] = value - 1
+        
+    @classmethod
+    def from_parents(cls, mother: 'TamagotchiGenes', father: 'TamagotchiGenes') -> 'TamagotchiGenes':
+        kwargs = {}
+        for key, tp in cls.__annotations__.items():
+
+            if tp == float:
+                kwargs[key] = random.uniform(mother.__dict__[key], father.__dict__[key]) + random.uniform(mother.mutation_rate, father.mutation_rate)
+            elif tp == bool:
+                kwargs[key] = random.choice([mother.__dict__[key], father.__dict__[key]])
+
+        return cls(**kwargs)
+
+    @classmethod
+    def from_nothing(cls) -> 'TamagotchiGenes':
+        kwargs = {}
+        for key, tp in cls.__annotations__.items():
+            if tp == float:
+                kwargs[key] = random.uniform(0, 1)
+            elif tp == bool:
+                kwargs[key] = random.choice([True, False])
+
+        return cls(**kwargs)
+
+    @property
+    def male(self) -> bool:
+        return not self.female
+
+    def __getattribute__(self, __name: str) -> Any:
+        value = super().__getattribute__(__name)
+
+        if isinstance(value, float):
+            return self.BoundedValue(value)
+        return value
+
+
+@dataclass(slots=True)
+class Tamagotchi:
+    _id: ObjectId
+    owner: int
+    genes: TamagotchiGenes = field(default_factory=TamagotchiGenes.from_nothing)
+    name: str = field(default_factory=lambda: ''.join(random.choices(string.ascii_letters, k=random.randint(3,8))))
+    birthday: datetime = field(default_factory=datetime.utcnow)
+
+    @property
+    def age(self) -> timedelta:
+        return (datetime.utcnow() - self.birthday)
 
 @dataclass(slots=True)
 class Guild:
@@ -224,12 +336,12 @@ class Guild:
         self.modules &= ~module.value
 
 
-class AdminScale(Scale):
+class AdminExtension(Extension):
     def __init__(self, bot) -> None:
         self.bot = bot
         self.db = bot.db
         self.database = bot.db.db
-        self.add_scale_check(self.is_manager)
+        self.add_Extension_check(self.is_manager)
 
     async def is_manager(self, ctx):
         return ctx.author.has_permission(Permissions.MANAGE_GUILD)

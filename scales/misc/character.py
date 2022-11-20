@@ -1,12 +1,12 @@
 import asyncio
 import random
 import time
-from dis_snek import InteractionContext, listen, Scale, slash_command, slash_option
+from naff import InteractionContext, listen, Extension, slash_command, slash_option
 from os import getenv
 import openai
 import models
 
-from dis_snek.api.events import MessageCreate
+from naff.api.events import MessageCreate
 
 NAMES = [
     'anya',
@@ -72,14 +72,14 @@ class Memory:
         memories.append(interaction)
         self.data[user] = memories
 
-class Character(Scale):
+class Character(Extension):
 
     def __init__(self, bot):
         super().__init__()
         self.memory = Memory()
         self.past_messages = LimitedList(100)
 
-    @slash_command("train", "train anya with a message")
+    @slash_command("train", description="train anya with a message")
     @slash_option("prompt", "what is said to anya",
         opt_type=3,
         required=True
@@ -104,7 +104,7 @@ class Character(Scale):
 
         await ctx.send(f"Inserted interaction `#{amount}`:\n\n```json\n{intactn}```")
 
-    @slash_command("data", "view the last few JSONL lines of training data")
+    @slash_command("data", description="view the last few JSONL lines of training data")
     async def data(self, ctx: InteractionContext):
         last_few = await self.bot.db.db.training_data.find({}).sort('_id', -1).limit(10).to_list(length=10)
 
@@ -154,7 +154,7 @@ class Character(Scale):
             any(x.lower() in message.content.lower() for x in NAMES) or
             (message.message_reference and message.message_reference.message_id in self.past_messages)
         ):
-            reading_scale = 30
+            reading_Extension = 30
             
             # these are conditions where the bot should respond more promptly, so active conversations can exist
             if (
@@ -162,9 +162,9 @@ class Character(Scale):
                 (f"<@{self.bot.user.id}>" in message.content or f"<@!{self.bot.user.id}>" in message.content) or
                 (message.author.id in self.memory.data)
             ):
-                reading_scale = 3
+                reading_Extension = 3
             
-            await asyncio.sleep(random.random() * reading_scale) # some reaction time and reading time
+            await asyncio.sleep(random.random() * reading_Extension) # some reaction time and reading time
 
             await message.channel.trigger_typing()
 

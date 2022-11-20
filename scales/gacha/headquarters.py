@@ -1,10 +1,10 @@
 from dataclasses import asdict
-from dis_snek import slash_command, listen, Scale, InteractionContext, Button, ComponentContext, Embed, EmbedField, component_callback, Member, Select, SelectOption, spread_to_rows
+from naff import slash_command, listen, Extension, InteractionContext, Button, ComponentContext, Embed, EmbedField, component_callback, Member, Select, SelectOption, spread_to_rows
 import models
 from db import Update
 import random
 from datetime import datetime, timedelta
-from dis_snek.api.events import Component
+from naff.api.events import Component
 from utils import time
 import random
 
@@ -68,7 +68,7 @@ async def render_dispatch_menu(ctx: InteractionContext, agent_id: str, mission_i
         ), max_in_row=2),
     )
 
-class Headquarters(Scale):
+class Headquarters(Extension):
 
     async def render_hq(self, author: Member, user: models.User) -> tuple[Embed, list]:
 

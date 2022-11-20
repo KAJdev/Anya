@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from random import choices
-from dis_snek import slash_command, Embed, listen, Scale, InteractionContext, OptionTypes, slash_option, Button, SlashCommandChoice, ComponentContext, EmbedFooter
+from naff import slash_command, Embed, listen, Extension, InteractionContext, OptionTypes, slash_option, Button, SlashCommandChoice, ComponentContext, EmbedFooter
 import aiohttp, models, bs4
 
 MANGAS = {
@@ -18,7 +18,7 @@ class MangaIndex:
     pages: list[str] = field(default_factory=list)
     chapters: dict = field(default_factory=dict)
 
-class Manga(Scale):
+class Manga(Extension):
 
     def __init__(self, bot):
         super().__init__()

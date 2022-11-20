@@ -1,10 +1,10 @@
-from dis_snek import slash_command, InteractionCommand, Scale, InteractionContext, OptionTypes, slash_option, Permissions
+from naff import slash_command, InteractionCommand, Extension, InteractionContext, OptionTypes, slash_option, Permissions
 import models
 
 from models import ModuleToggles
 from db import Update
 
-class Modules(Scale):
+class Modules(Extension):
     
     @slash_command(name="modules", sub_cmd_name="toggle", sub_cmd_description="Toggle a module on or off")
     @slash_option(

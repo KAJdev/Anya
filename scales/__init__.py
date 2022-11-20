@@ -15,4 +15,5 @@ default = (
     'moderation.purge',
     'gacha.headquarters',
     'gacha.leaderboard',
+    # 'gacha.tamagotchi',
 )
