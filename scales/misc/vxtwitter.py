@@ -10,7 +10,7 @@ class Vxtwitter(Extension):
 
     @listen()
     async def on_message_create(self, event: MessageCreate):
-        message = event.after
+        message = event.message
 
         if message.author.bot:
             return
