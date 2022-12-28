@@ -132,7 +132,7 @@ class Image(Extension):
 		self.bot.info(f"making image: {payload}")
 
 		attempts = 0
-		while attempts < 5:
+		while attempts < 3:
 			async with aiohttp.ClientSession() as session:
 					async with session.post(f"{ENDPOINT}/{path}", json=payload) as resp:
 						try:
