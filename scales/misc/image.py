@@ -140,6 +140,8 @@ class Image(Extension):
 
 							if isinstance(data, list) and len(data) > 0:
 								break
+
+							attempts += 1
 						except Exception as e:
 							print((await resp.text()))
 							return await ctx.send("Something went wrong")
