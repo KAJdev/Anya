@@ -146,7 +146,7 @@ class Image(Extension):
 							print((await resp.text()))
 							return await ctx.send("Something went wrong")
 
-		if not data:
+		if not (isinstance(data, list) and len(data) > 0):
 			return await ctx.send("Try another prompt")
 
 		await ctx.send(embeds=[
