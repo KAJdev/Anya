@@ -8,6 +8,7 @@ default = (
     'misc.manga',
     'misc.bin',
     'misc.character',
+    'misc.image',
     'management.modules',
     'management.autothread',
     'management.autopublish',
