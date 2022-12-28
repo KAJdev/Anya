@@ -131,13 +131,18 @@ class Image(Extension):
 
 		self.bot.info(f"making image: {payload}")
 
-		async with aiohttp.ClientSession() as session:
-			async with session.post(f"{ENDPOINT}/{path}", json=payload) as resp:
-				try:
-					data = await resp.json()
-				except Exception as e:
-					print((await resp.text()))
-					return await ctx.send("Something went wrong")
+		attempts = 0
+		while attempts < 5:
+			async with aiohttp.ClientSession() as session:
+					async with session.post(f"{ENDPOINT}/{path}", json=payload) as resp:
+						try:
+							data = await resp.json()
+
+							if isinstance(data, list) and len(data) > 0:
+								break
+						except Exception as e:
+							print((await resp.text()))
+							return await ctx.send("Something went wrong")
 
 		await ctx.send(embeds=[
 			Embed(
