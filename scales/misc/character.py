@@ -21,7 +21,9 @@ Her father is named loid forger, a spy. and her mother is named yor forger, an a
 anya:
 """
 
-client = openai.Client(getenv('OPENAI_TOKEN'))
+class Engine:
+  value = "text-davinci-003"
+client = openai.Client(getenv('OPENAI_TOKEN'), default_engine=Engine)
 
 class LimitedList(list):
     """
